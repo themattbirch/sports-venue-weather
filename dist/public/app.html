@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <!-- Basic Favicon/Icons -->
+    <link rel="icon" href="/icons/icon16.png" sizes="16x16" type="image/png" />
+    <link rel="icon" href="/icons/icon32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/icons/icon192.png" sizes="192x192" type="image/png" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Basic Meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#4F46E5" />
+    <meta name="description" content="Check real-time weather for NFL, NCAA Football, MLB, and MLS stadiums." />
+    <title>Stadium Weather</title>
+
+    <!-- Tailwind + Custom CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+
+  <script type="module" crossorigin src="/assets/app.C4fSBpo0.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/app.BDPjbSRP.css">
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen flex flex-col">
+    <!-- Main Container -->
+    <div id="root"
+        class="container mx-auto max-w-xl p-4 md:p-6 shadow-sm rounded-lg bg-neutral-light dark:bg-neutral-dark flex flex-col">
+        <!-- Header / Title Bar -->
+        <header class="header mb-4 rounded text-center">
+            <h1 class="text-xl sm:text-2xl font-bold">Stadium Weather</h1>
+        </header>
+
+        <!-- Controls Row -->
+        <div class="controls flex items-center gap-3 mb-4">
+            <input type="date" id="weather-date" class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring
+                 bg-white dark:bg-gray-700 dark:text-white" placeholder="mm/dd/yyyy" />
+            <button id="refresh" class="primary-button px-4 py-2 rounded shadow hover:shadow-md text-sm
+                 bg-blue-600 text-white dark:bg-blue-700">
+                Refresh
+            </button>
+            <button id="settings" class="primary-button px-4 py-2 rounded shadow hover:shadow-md text-sm
+                 bg-green-600 text-white dark:bg-green-700">
+                Settings
+            </button>
+        </div>
+
+        <!-- NFL Dropdown -->
+        <div class="team-dropdown mb-4">
+            <label for="nflDropdown" class="text-sm font-bold dark:text-white">NFL</label>
+            <select id="nflDropdown" class="w-full text-sm mt-1
+                bg-white dark:bg-gray-700 dark:text-white border
+                rounded px-2 py-1 focus:outline-none focus:ring">
+            </select>
+        </div>
+
+        <!-- NCAA Football Dropdown -->
+        <div class="team-dropdown mb-4">
+            <label for="ncaaDropdown" class="text-sm font-bold dark:text-white">NCAA Football</label>
+            <select id="ncaaDropdown" class="w-full text-sm mt-1
+                bg-white dark:bg-gray-700 dark:text-white border
+                rounded px-2 py-1 focus:outline-none focus:ring">
+            </select>
+        </div>
+
+        <!-- MLB Dropdown -->
+        <div class="team-dropdown mb-4">
+            <label for="mlbDropdown" class="text-sm font-bold dark:text-white">MLB</label>
+            <select id="mlbDropdown" class="w-full text-sm mt-1
+                bg-white dark:bg-gray-700 dark:text-white border
+                rounded px-2 py-1 focus:outline-none focus:ring">
+            </select>
+        </div>
+
+        <!-- MLS Dropdown -->
+        <div class="team-dropdown mb-4">
+            <label for="mlsDropdown" class="text-sm font-bold dark:text-white">MLS</label>
+            <select id="mlsDropdown" class="w-full text-sm mt-1
+                bg-white dark:bg-gray-700 dark:text-white border
+                rounded px-2 py-1 focus:outline-none focus:ring">
+            </select>
+        </div>
+
+        <!-- Weather List -->
+        <div id="weatherList" class="w-full flex flex-col gap-4 flex-grow"></div>
+    </div>
+
+    <!-- Main Script -->
+</body>
+
+</html>
