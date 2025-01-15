@@ -6,11 +6,11 @@ const PRECACHE_URLS = [
   "/index.html",
   "/offline.html",
   "/manifest.webmanifest",
-  "/icons/icon16.png",
-  "/icons/icon48.png",
-  "/icons/icon128.png",
-  "/icons/icon192.png",
-  "/icons/icon512.png",
+  "/icons/football16.png",
+  "/icons/football48.png",
+  "/icons/football128.png",
+  "/icons/football192.png",
+  "/icons/football512.png",
 ];
 
 // The path to your offline fallback

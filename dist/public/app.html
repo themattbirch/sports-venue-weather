@@ -3,93 +3,90 @@
 
 <head>
     <meta charset="UTF-8" />
-    <!-- Basic Favicon/Icons -->
     <link rel="icon" href="/icons/icon16.png" sizes="16x16" type="image/png" />
     <link rel="icon" href="/icons/icon32.png" sizes="32x32" type="image/png" />
     <link rel="icon" href="/icons/icon192.png" sizes="192x192" type="image/png" />
-
-    <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.webmanifest" />
-
-    <!-- Basic Meta -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="theme-color" content="#4F46E5" />
+    <meta name="theme-color" content="#2E5A27" />
     <meta name="description" content="Check real-time weather for NFL, NCAA Football, MLB, and MLS stadiums." />
     <title>Stadium Weather</title>
-
-    <!-- Tailwind + Custom CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-
-  <script type="module" crossorigin src="/assets/app.C4fSBpo0.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/app.BDPjbSRP.css">
+  <script type="module" crossorigin src="/assets/app.tY3tJMdU.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/app.B07aJPOb.css">
 </head>
 
-<body class="bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen flex flex-col">
-    <!-- Main Container -->
-    <div id="root"
-        class="container mx-auto max-w-xl p-4 md:p-6 shadow-sm rounded-lg bg-neutral-light dark:bg-neutral-dark flex flex-col">
-        <!-- Header / Title Bar -->
-        <header class="header mb-4 rounded text-center">
-            <h1 class="text-xl sm:text-2xl font-bold">Stadium Weather</h1>
+<body class="bg-white dark:bg-gray-900">
+    <div id="root" class="container mx-auto">
+        <header class="header">
+            <h1>Stadium Weather</h1>
+            <button id="settings" class="icon-button absolute top-4 right-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path
+                        d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5zm7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.488.488 0 0 0 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zm-7.43.03c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                </svg>
+            </button>
         </header>
 
-        <!-- Controls Row -->
-        <div class="controls flex items-center gap-3 mb-4">
-            <input type="date" id="weather-date" class="border rounded px-2 py-1 text-sm focus:outline-none focus:ring
-                 bg-white dark:bg-gray-700 dark:text-white" placeholder="mm/dd/yyyy" />
-            <button id="refresh" class="primary-button px-4 py-2 rounded shadow hover:shadow-md text-sm
-                 bg-blue-600 text-white dark:bg-blue-700">
+        <div class="controls">
+            <input type="date" id="weather-date"
+                class="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800" />
+
+            <button id="refresh" class="primary-button bg-blue-600 text-white">
                 Refresh
             </button>
-            <button id="settings" class="primary-button px-4 py-2 rounded shadow hover:shadow-md text-sm
-                 bg-green-600 text-white dark:bg-green-700">
+
+            <button id="settings-btn" class="primary-button bg-green-600 text-white">
                 Settings
             </button>
         </div>
 
-        <!-- NFL Dropdown -->
-        <div class="team-dropdown mb-4">
-            <label for="nflDropdown" class="text-sm font-bold dark:text-white">NFL</label>
-            <select id="nflDropdown" class="w-full text-sm mt-1
-                bg-white dark:bg-gray-700 dark:text-white border
-                rounded px-2 py-1 focus:outline-none focus:ring">
-            </select>
+        <div class="dropdowns-container">
+            <div class="custom-dropdown" id="nflDropdown">
+                <label>NFL</label>
+                <div class="dropdown-selected">Select NFL Team</div>
+                <ul class="dropdown-list" role="listbox">
+                    <li class="dropdown-search">
+                        <input type="text" placeholder="Search teams..." />
+                    </li>
+                </ul>
+            </div>
+
+            <div class="custom-dropdown" id="ncaaDropdown">
+                <label>NCAA Football</label>
+                <div class="dropdown-selected">Select NCAA Team</div>
+                <ul class="dropdown-list" role="listbox">
+                    <li class="dropdown-search">
+                        <input type="text" placeholder="Search teams..." />
+                    </li>
+                </ul>
+            </div>
+
+            <div class="custom-dropdown" id="mlbDropdown">
+                <label>MLB</label>
+                <div class="dropdown-selected">Select MLB Team</div>
+                <ul class="dropdown-list" role="listbox">
+                    <li class="dropdown-search">
+                        <input type="text" placeholder="Search teams..." />
+                    </li>
+                </ul>
+            </div>
+
+            <div class="custom-dropdown" id="mlsDropdown">
+                <label>MLS</label>
+                <div class="dropdown-selected">Select MLS Team</div>
+                <ul class="dropdown-list" role="listbox">
+                    <li class="dropdown-search">
+                        <input type="text" placeholder="Search teams..." />
+                    </li>
+                </ul>
+            </div>
         </div>
 
-        <!-- NCAA Football Dropdown -->
-        <div class="team-dropdown mb-4">
-            <label for="ncaaDropdown" class="text-sm font-bold dark:text-white">NCAA Football</label>
-            <select id="ncaaDropdown" class="w-full text-sm mt-1
-                bg-white dark:bg-gray-700 dark:text-white border
-                rounded px-2 py-1 focus:outline-none focus:ring">
-            </select>
-        </div>
-
-        <!-- MLB Dropdown -->
-        <div class="team-dropdown mb-4">
-            <label for="mlbDropdown" class="text-sm font-bold dark:text-white">MLB</label>
-            <select id="mlbDropdown" class="w-full text-sm mt-1
-                bg-white dark:bg-gray-700 dark:text-white border
-                rounded px-2 py-1 focus:outline-none focus:ring">
-            </select>
-        </div>
-
-        <!-- MLS Dropdown -->
-        <div class="team-dropdown mb-4">
-            <label for="mlsDropdown" class="text-sm font-bold dark:text-white">MLS</label>
-            <select id="mlsDropdown" class="w-full text-sm mt-1
-                bg-white dark:bg-gray-700 dark:text-white border
-                rounded px-2 py-1 focus:outline-none focus:ring">
-            </select>
-        </div>
-
-        <!-- Weather List -->
-        <div id="weatherList" class="w-full flex flex-col gap-4 flex-grow"></div>
+        <div id="weatherList" class="mt-6 space-y-4"></div>
     </div>
 
-    <!-- Main Script -->
 </body>
 
 </html>

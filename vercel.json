@@ -13,13 +13,47 @@
       "destination": "https://$1"
     }
   ],
-  "rewrites": [
-    { "source": "/", "destination": "/home.html" },
-    { "source": "/app", "destination": "/app.html" },
-    { "source": "/app/:path*", "destination": "/app.html" },
-    { "source": "/support", "destination": "/support.html" },
-    { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/terms",   "destination": "/terms.html" }
+   "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+      {
+      "source": "/app",
+      "destination": "/public/index.html"
+    },
+       {
+      "source": "/app/:path*",
+      "destination": "/public/index.html"
+    },
+       {
+      "source": "/app/service-worker.js",
+      "destination": "/app/service-worker.js"
+    },
+    {
+     "source": "/.well-known/assetlinks.json",
+     "destination": "/.well-known/assetlinks.json"
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "destination": "/manifest.webmanifest"
+    },
+    {
+      "source": "/support",
+      "destination": "/support.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/icons/:path*",
+      "destination": "/icons/:path*"
+    }
   ],
   "headers": [
     {

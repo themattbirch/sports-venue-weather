@@ -1,6 +1,6 @@
 // /src/types.ts
 
-// Interface for Stadium Information
+// Existing interfaces...
 export interface StadiumInfo {
   name: string;
   team: string;
@@ -8,7 +8,6 @@ export interface StadiumInfo {
   longitude: number;
 }
 
-// Interfaces for Weather Data as per OpenWeather API Response
 export interface WeatherCondition {
   main: string;
   description: string;
@@ -31,8 +30,17 @@ export interface WeatherDataResponse {
   wind: WeatherWind;
 }
 
-// Interface for Combined Stadium and Weather Data
 export interface WeatherData {
   stadium: StadiumInfo;
   weather: WeatherDataResponse;
+}
+
+// New additions:
+export type LeagueType = 'nfl' | 'ncaa' | 'mlb' | 'mls';
+
+export interface StadiumsMap {
+  nfl: StadiumInfo[];
+  ncaa: StadiumInfo[];
+  mlb: StadiumInfo[];
+  mls: StadiumInfo[];
 }
