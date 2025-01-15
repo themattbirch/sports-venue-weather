@@ -61,6 +61,10 @@ body {
   color: var(--text-color);
 }
 
+body.dark-mode {
+  @apply bg-gray-900 text-white;
+}
+
 #root {
   width: 100%;
   max-width: 650px;
@@ -100,10 +104,10 @@ body {
   height: 24px;
   transition: color 0.3s ease;
   background: none;
+  color: #eab308;
   border: none;
   cursor: pointer;
   padding: 0;
-  color: var(--settings-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -111,6 +115,23 @@ body {
 
 .icon-button:hover {
   color: var(--secondary-color);
+}
+
+.icon-button.theme-toggle svg {
+  color: #eab308 !important; /* Force override */
+}
+
+.icon-button.theme-toggle:hover svg {
+  color: var(--secondary-color) !important;
+}
+
+/* Dark mode styles */
+body.dark-mode .icon-button.theme-toggle svg {
+  color: #fff !important;
+}
+
+body.dark-mode .icon-button.theme-toggle:hover svg {
+  color: #eab308 !important;
 }
 
 /* Controls Styles */

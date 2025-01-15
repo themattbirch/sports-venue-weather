@@ -1,21 +1,23 @@
-const CACHE_NAME = "stadium-weather";
+// public/service-worker.js
 
-// Add '/offline.html' to your precache list
+const CACHE_NAME = "stadium-weather-v1";
+
+// Precache the specified resources
 const PRECACHE_URLS = [
-  "/app",
+  "/",
   "/index.html",
   "/offline.html",
   "/manifest.webmanifest",
-  "/icons/football16.png",
-  "/icons/football48.png",
-  "/icons/football128.png",
-  "/icons/football192.png",
-  "/icons/football512.png",
+  "/icons/icon16.png",
+  "/icons/icon32.png",
+  "/icons/icon192.png",
+  "/icons/icon512.png",
 ];
 
 // The path to your offline fallback
 const OFFLINE_FALLBACK_URL = "/offline.html";
 
+// Install event: Precache resources
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -25,6 +27,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
+// Activate event: Clean up old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
@@ -39,6 +42,7 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Fetch event: Serve cached content when offline
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -57,7 +61,7 @@ self.addEventListener("fetch", (event) => {
         }
         return networkResponse;
       } catch (err) {
-        // for navigations, return offline fallback
+        // For navigations, return offline fallback
         if (request.mode === "navigate") {
           const fallback = await caches.match(OFFLINE_FALLBACK_URL);
           return fallback || new Response("Offline", { status: 503 });
