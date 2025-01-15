@@ -20,11 +20,11 @@
     },
     {
       "source": "/app",
-      "destination": "/app.html"
+      "destination": "/index.html"
     },
     {
       "source": "/app/:path*",
-      "destination": "/app.html"
+      "destination": "/index.html"
     },
     {
       "source": "/service-worker.js",
