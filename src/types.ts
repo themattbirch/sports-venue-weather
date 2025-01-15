@@ -1,6 +1,5 @@
 // /src/types.ts
 
-// Existing interfaces...
 export interface StadiumInfo {
   name: string;
   team: string;
@@ -22,12 +21,23 @@ export interface WeatherMain {
 
 export interface WeatherWind {
   speed: number;
+  deg?: number; 
+}
+
+export interface WeatherRain {
+  '1h': number;
+}
+
+export interface WeatherSnow {
+  '1h': number;
 }
 
 export interface WeatherDataResponse {
   weather: WeatherCondition[];
   main: WeatherMain;
   wind: WeatherWind;
+  rain?: WeatherRain; 
+  snow?: WeatherSnow; 
 }
 
 export interface WeatherData {

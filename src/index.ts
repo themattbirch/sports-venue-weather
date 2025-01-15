@@ -1,417 +1,395 @@
+// /src/index.ts
+
 import './styles/styles.css';
 import { safeGetItem, safeSetItem } from './utils/storage';
 import SettingsManager from './settings';
 import { StadiumInfo, WeatherData, WeatherDataResponse, LeagueType, StadiumsMap } from './types';
+import { WeatherCard } from './components/WeatherCard'; 
 
 let OPENWEATHER_API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
 
 function checkApiKey() {
- if (!OPENWEATHER_API_KEY) {
-   throw new Error('OpenWeather API key not found in environment variables');
- }
+  if (!OPENWEATHER_API_KEY) {
+    throw new Error('OpenWeather API key not found in environment variables');
+  }
 }
 
 class GameDayWeather {
- private stadiumsMap: StadiumsMap = {
-   nfl: [],
-   ncaa: [],
-   mlb: [],
-   mls: [],
- };
+  private stadiumsMap: StadiumsMap = {
+    nfl: [],
+    ncaa: [],
+    mlb: [],
+    mls: [],
+  };
 
- constructor() {
-   this.init();
- }
+  constructor() {
+    this.init();
+  }
 
- async init(): Promise<void> {
-   try {
-     // Read API key from safe storage
-     const storedApiKey = safeGetItem('openweatherApiKey');
-     if (storedApiKey) {
-       OPENWEATHER_API_KEY = storedApiKey;
-     }
+  async init(): Promise<void> {
+    try {
+      // Read API key from safe storage
+      const storedApiKey = safeGetItem('openweatherApiKey');
+      if (storedApiKey) {
+        OPENWEATHER_API_KEY = storedApiKey;
+      }
 
-     // Read dark mode
-     const darkModeVal = safeGetItem('darkModeEnabled');
-     if (darkModeVal === 'true') {
-       document.body.classList.add('dark-mode');
-     }
+      // Read dark mode
+      const darkModeVal = safeGetItem('darkModeEnabled');
+      if (darkModeVal === 'true') {
+        document.body.classList.add('dark-mode');
+      }
 
-     await this.loadStadiumData();
-     this.setupCustomDropdowns();
-     this.setupEventListeners();
-   } catch (err: any) {
-     console.error('Initialization error:', err);
-     this.showError('Initialization Error', err.message);
-   }
- }
+      await this.loadStadiumData();
+      this.setupCustomDropdowns();
+      this.setupEventListeners();
+    } catch (err: any) {
+      console.error('Initialization error:', err);
+      this.showError('Initialization Error', err.message);
+    }
+  }
 
- setupEventListeners(): void {
-   // Setup refresh button
-   const refreshBtn = document.getElementById('refresh');
-   if (refreshBtn) {
-     refreshBtn.addEventListener('click', () => this.refreshWeather());
-   }
+  setupEventListeners(): void {
+    // Setup refresh button
+    const refreshBtn = document.getElementById('refresh');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => this.refreshWeather());
+    }
 
-   // Setup settings button
-   const settingsBtn = document.getElementById('settings');
-   if (settingsBtn) {
-     settingsBtn.addEventListener('click', () => this.openSettings());
-   }
+    // Setup settings button
+    const settingsBtn = document.getElementById('settings');
+    if (settingsBtn) {
+      settingsBtn.addEventListener('click', () => this.openSettings());
+    }
 
-   // Close dropdowns when clicking outside
-   document.addEventListener('click', (e) => {
-     if (!(e.target as HTMLElement).closest('.custom-dropdown')) {
-       this.closeAllDropdowns();
-     }
-   });
- }
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!(e.target as HTMLElement).closest('.custom-dropdown')) {
+        this.closeAllDropdowns();
+      }
+    });
+  }
 
- setupCustomDropdowns(): void {
-   const dropdownTypes: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
+  setupCustomDropdowns(): void {
+    const dropdownTypes: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
 
-   dropdownTypes.forEach((type) => {
-     const dropdown = document.getElementById(`${type}Dropdown`) as HTMLElement;
-     if (dropdown) {
-       this.initializeCustomDropdown(dropdown, type);
-     }
-   });
- }
+    dropdownTypes.forEach((type) => {
+      const dropdown = document.getElementById(`${type}Dropdown`) as HTMLElement;
+      if (dropdown) {
+        this.initializeCustomDropdown(dropdown, type);
+      }
+    });
+  }
 
- initializeCustomDropdown(dropdown: HTMLElement, type: LeagueType): void {
-   const selected = dropdown.querySelector('.dropdown-selected') as HTMLElement;
-   const list = dropdown.querySelector('.dropdown-list') as HTMLElement;
-   const searchInput = dropdown.querySelector('.dropdown-search input') as HTMLInputElement;
+  initializeCustomDropdown(dropdown: HTMLElement, type: LeagueType): void {
+    const selected = dropdown.querySelector('.dropdown-selected') as HTMLElement;
+    const list = dropdown.querySelector('.dropdown-list') as HTMLElement;
+    const searchInput = dropdown.querySelector('.dropdown-search input') as HTMLInputElement;
 
-   // Toggle dropdown
-   dropdown.addEventListener('click', (e) => {
-     e.stopPropagation();
-     if (!e.target || !(e.target as HTMLElement).closest('.dropdown-search')) {
-       this.closeAllDropdowns(dropdown);
-       dropdown.classList.toggle('active');
-       if (dropdown.classList.contains('active')) {
-         searchInput.focus();
-       }
-     }
-   });
+    // Toggle dropdown
+    dropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!e.target || !(e.target as HTMLElement).closest('.dropdown-search')) {
+        this.closeAllDropdowns(dropdown);
+        dropdown.classList.toggle('active');
+        if (dropdown.classList.contains('active')) {
+          searchInput.focus();
+        }
+      }
+    });
 
-   // Handle option selection
-   list.addEventListener('click', (e) => {
-     e.stopPropagation();
-     const target = e.target as HTMLElement;
-     if (target.tagName.toLowerCase() === 'li' && !target.classList.contains('dropdown-search')) {
-       const selectedValue = target.dataset.value;
-       const selectedText = target.textContent;
-       if (selected && selectedText) {
-         selected.textContent = selectedText;
-         dropdown.classList.remove('active');
-         this.handleDropdownSelection(type, selectedValue);
-       }
-     }
-   });
+    // Handle option selection
+    list.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const target = e.target as HTMLElement;
+      if (target.tagName.toLowerCase() === 'li' && !target.classList.contains('dropdown-search')) {
+        const selectedValue = target.dataset.value;
+        const selectedText = target.textContent;
+        if (selected && selectedText) {
+          selected.textContent = selectedText;
+          dropdown.classList.remove('active');
+          this.handleDropdownSelection(type, selectedValue);
+        }
+      }
+    });
 
-   // Search functionality
-   searchInput.addEventListener('input', (e) => {
-     const filter = searchInput.value.toLowerCase();
-     const items = list.querySelectorAll('li:not(.dropdown-search)');
-     items.forEach((item) => {
-       const text = item.textContent?.toLowerCase() || '';
-       (item as HTMLElement).style.display = text.includes(filter) ? '' : 'none';
-     });
-   });
+    // Search functionality
+    searchInput.addEventListener('input', (e) => {
+      const filter = searchInput.value.toLowerCase();
+      const items = list.querySelectorAll('li:not(.dropdown-search)');
+      items.forEach((item) => {
+        const text = item.textContent?.toLowerCase() || '';
+        (item as HTMLElement).style.display = text.includes(filter) ? '' : 'none';
+      });
+    });
 
-   // Keyboard navigation
-   dropdown.addEventListener('keydown', (e) => {
-     const active = dropdown.classList.contains('active');
-     
-     switch (e.key) {
-       case 'Enter':
-         e.preventDefault();
-         if (active) {
-           const visibleItems = Array.from(
-             list.querySelectorAll('li:not(.dropdown-search):not([style*="display: none"])')
-           ) as HTMLElement[];
-           if (visibleItems.length > 0) {
-             visibleItems[0].click();
-           }
-         } else {
-           dropdown.click();
-         }
-         break;
-         
-       case 'Escape':
-         if (active) {
-           dropdown.classList.remove('active');
-         }
-         break;
-         
-       case 'ArrowDown':
-         if (active) {
-           e.preventDefault();
-           const visibleItems = Array.from(
-             list.querySelectorAll('li:not(.dropdown-search):not([style*="display: none"])')
-           ) as HTMLElement[];
-           if (visibleItems.length > 0) {
-             visibleItems[0].focus();
-           }
-         }
-         break;
-     }
-   });
- }
+    // Keyboard navigation
+    dropdown.addEventListener('keydown', (e) => {
+      const active = dropdown.classList.contains('active');
 
- closeAllDropdowns(currentDropdown?: HTMLElement): void {
-   const dropdowns = document.querySelectorAll('.custom-dropdown.active');
-   dropdowns.forEach((dropdown) => {
-     if (dropdown !== currentDropdown) {
-       dropdown.classList.remove('active');
-     }
-   });
- }
+      switch (e.key) {
+        case 'Enter':
+          e.preventDefault();
+          if (active) {
+            const visibleItems = Array.from(
+              list.querySelectorAll('li:not(.dropdown-search):not([style*="display: none"])')
+            ) as HTMLElement[];
+            if (visibleItems.length > 0) {
+              visibleItems[0].click();
+            }
+          } else {
+            dropdown.click();
+          }
+          break;
 
- async handleDropdownSelection(type: LeagueType, selectedValue: string | undefined): Promise<void> {
-   if (!selectedValue) return;
+        case 'Escape':
+          if (active) {
+            dropdown.classList.remove('active');
+          }
+          break;
 
-   // Reset other dropdowns
-   const allTypes: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
-   allTypes.forEach((t) => {
-     if (t !== type) {
-       const dropdown = document.getElementById(`${t}Dropdown`);
-       const selected = dropdown?.querySelector('.dropdown-selected');
-       if (selected) {
-         selected.textContent = `Select ${t.toUpperCase()} Team`;
-       }
-     }
-   });
+        case 'ArrowDown':
+          if (active) {
+            e.preventDefault();
+            const visibleItems = Array.from(
+              list.querySelectorAll('li:not(.dropdown-search):not([style*="display: none"])')
+            ) as HTMLElement[];
+            if (visibleItems.length > 0) {
+              visibleItems[0].focus();
+            }
+          }
+          break;
+      }
+    });
+  }
 
-   await this.refreshWeather();
- }
+  closeAllDropdowns(currentDropdown?: HTMLElement): void {
+    const dropdowns = document.querySelectorAll('.custom-dropdown.active');
+    dropdowns.forEach((dropdown) => {
+      if (dropdown !== currentDropdown) {
+        dropdown.classList.remove('active');
+      }
+    });
+  }
 
- async loadStadiumData(): Promise<void> {
-   try {
-     const [footballResp, otherResp] = await Promise.all([
-       fetch('/data/stadium_coordinates.json'),
-       fetch('/data/more_stadium_coordinates.json')
-     ]);
+  async handleDropdownSelection(type: LeagueType, selectedValue: string | undefined): Promise<void> {
+    if (!selectedValue) return;
 
-     if (!footballResp.ok) throw new Error('Failed to load football stadium data');
-     if (!otherResp.ok) throw new Error('Failed to load MLB/MLS stadium data');
+    // Reset other dropdowns
+    const allTypes: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
+    allTypes.forEach((t) => {
+      if (t !== type) {
+        const dropdown = document.getElementById(`${t}Dropdown`);
+        const selected = dropdown?.querySelector('.dropdown-selected');
+        if (selected) {
+          selected.textContent = `Select ${t.toUpperCase()} Team`;
+        }
+      }
+    });
 
-     const [footballData, otherData] = await Promise.all([
-       footballResp.json(),
-       otherResp.json()
-     ]);
+    await this.refreshWeather();
+  }
 
-     // Process football data
-     this.stadiumsMap.nfl = this.processStadiumData(footballData.nfl);
-     this.stadiumsMap.ncaa = this.processStadiumData(footballData.ncaa);
-     
-     // Process other sports data
-     this.stadiumsMap.mlb = this.processStadiumData(otherData.mlb);
-     this.stadiumsMap.mls = this.processStadiumData(otherData.mls);
+  async loadStadiumData(): Promise<void> {
+    try {
+      const [footballResp, otherResp] = await Promise.all([
+        fetch('/data/stadium_coordinates.json'),
+        fetch('/data/more_stadium_coordinates.json')
+      ]);
 
-     // Populate all dropdowns
-     Object.keys(this.stadiumsMap).forEach((type) => {
-       this.populateDropdown(type as LeagueType, this.stadiumsMap[type as LeagueType]);
-     });
+      if (!footballResp.ok) throw new Error('Failed to load football stadium data');
+      if (!otherResp.ok) throw new Error('Failed to load MLB/MLS stadium data');
 
-   } catch (err: any) {
-     console.error('Error loading stadium data:', err);
-     this.showError('Could not load stadium data', 'Check your connection and try again.');
-   }
- }
+      const [footballData, otherData] = await Promise.all([
+        footballResp.json(),
+        otherResp.json()
+      ]);
 
- processStadiumData(data: Record<string, any>): StadiumInfo[] {
-   return Object.entries(data).map(([name, info]: [string, any]) => ({
-     name,
-     team: info.team,
-     latitude: info.latitude,
-     longitude: info.longitude
-   }));
- }
+      // Process football data
+      this.stadiumsMap.nfl = this.processStadiumData(footballData.nfl);
+      this.stadiumsMap.ncaa = this.processStadiumData(footballData.ncaa);
 
- populateDropdown(type: LeagueType, stadiums: StadiumInfo[]): void {
-   const dropdown = document.getElementById(`${type}Dropdown`);
-   if (!dropdown) return;
-   
-   const list = dropdown.querySelector('.dropdown-list');
-   if (!list) return;
+      // Process other sports data
+      this.stadiumsMap.mlb = this.processStadiumData(otherData.mlb);
+      this.stadiumsMap.mls = this.processStadiumData(otherData.mls);
 
-   // Clear existing options except search
-   list.innerHTML = '<li class="dropdown-search"><input type="text" placeholder="Search teams..." /></li>';
+      // Populate all dropdowns
+      Object.keys(this.stadiumsMap).forEach((type) => {
+        this.populateDropdown(type as LeagueType, this.stadiumsMap[type as LeagueType]);
+      });
 
-   // Get unique team names
-   const teamNames = new Set<string>();
-   stadiums.forEach((stadium) => {
-     if (stadium.team) {
-       stadium.team.split(/,|\//).forEach(team => teamNames.add(team.trim()));
-     }
-   });
+    } catch (err: any) {
+      console.error('Error loading stadium data:', err);
+      this.showError('Could not load stadium data', 'Check your connection and try again.');
+    }
+  }
 
-   // Add 'All Teams' option
-   const allOption = document.createElement('li');
-   allOption.textContent = `All ${type.toUpperCase()} Teams`;
-   allOption.dataset.value = 'all';
-   list.appendChild(allOption);
+  processStadiumData(data: Record<string, any>): StadiumInfo[] {
+    return Object.entries(data).map(([name, info]: [string, any]) => ({
+      name,
+      team: info.team,
+      latitude: info.latitude,
+      longitude: info.longitude
+    }));
+  }
 
-   // Add individual teams
-   Array.from(teamNames)
-     .sort()
-     .forEach((team) => {
-       const li = document.createElement('li');
-       li.textContent = team;
-       li.dataset.value = team;
-       list.appendChild(li);
-     });
- }
+  populateDropdown(type: LeagueType, stadiums: StadiumInfo[]): void {
+    const dropdown = document.getElementById(`${type}Dropdown`);
+    if (!dropdown) return;
 
- async refreshWeather(): Promise<void> {
-   const selectedTeams = this.getSelectedTeams();
-   const dateEl = document.querySelector('#weather-date') as HTMLInputElement;
-   const dateVal = dateEl?.value || new Date().toISOString().split('T')[0];
+    const list = dropdown.querySelector('.dropdown-list');
+    if (!list) return;
 
-   if (selectedTeams.length === 0) {
-     this.showError('No team selected', 'Please select at least one team.');
-     return;
-   }
+    // Clear existing options except search
+    list.innerHTML = '<li class="dropdown-search"><input type="text" placeholder="Search teams..." /></li>';
 
-   const weatherList = document.getElementById('weatherList');
-   if (!weatherList) return;
-   
-   weatherList.innerHTML = '<div class="loading">Loading weather data...</div>';
+    // Get unique team names
+    const teamNames = new Set<string>();
+    stadiums.forEach((stadium) => {
+      if (stadium.team) {
+        stadium.team.split(/,|\//).forEach(team => teamNames.add(team.trim()));
+      }
+    });
 
-   try {
-     checkApiKey();
-     const requests = selectedTeams.map((stadium) => this.fetchWeatherForStadium(stadium, dateVal));
-     const results = await Promise.all(requests);
-     this.displayWeather(results);
-   } catch (error: any) {
-     console.error('Error in refreshWeather:', error);
-     this.showError('Could not fetch weather data', error.message);
-   }
- }
+    // Add 'All Teams' option
+    const allOption = document.createElement('li');
+    allOption.textContent = `All ${type.toUpperCase()} Teams`;
+    allOption.dataset.value = 'all';
+    list.appendChild(allOption);
 
- getSelectedTeams(): StadiumInfo[] {
-   const teams: StadiumInfo[] = [];
-   const types: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
+    // Add individual teams
+    Array.from(teamNames)
+      .sort()
+      .forEach((team) => {
+        const li = document.createElement('li');
+        li.textContent = team;
+        li.dataset.value = team;
+        list.appendChild(li);
+      });
+  }
 
-   types.forEach((type) => {
-     const dropdown = document.getElementById(`${type}Dropdown`);
-     const selected = dropdown?.querySelector('.dropdown-selected')?.textContent;
+  async refreshWeather(): Promise<void> {
+    const selectedTeams = this.getSelectedTeams();
+    const dateEl = document.querySelector('#weather-date') as HTMLInputElement;
+    const dateVal = dateEl?.value || new Date().toISOString().split('T')[0];
 
-     if (selected && selected !== `Select ${type.toUpperCase()} Team`) {
-       if (selected === `All ${type.toUpperCase()} Teams`) {
-         teams.push(...this.stadiumsMap[type]);
-       } else {
-         const filtered = this.stadiumsMap[type].filter(s => s.team.includes(selected));
-         teams.push(...filtered);
-       }
-     }
-   });
+    if (selectedTeams.length === 0) {
+      this.showError('No team selected', 'Please select at least one team.');
+      return;
+    }
 
-   return teams;
- }
+    const weatherList = document.getElementById('weatherList');
+    if (!weatherList) return;
 
- async fetchWeatherForStadium(stadium: StadiumInfo, date: string): Promise<WeatherData> {
-   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${stadium.latitude}&lon=${stadium.longitude}&units=imperial&appid=${OPENWEATHER_API_KEY}`;
-   const resp = await fetch(url);
-   
-   if (!resp.ok) {
-     throw new Error(`Weather fetch error: ${resp.statusText}`);
-   }
-   
-   const weather: WeatherDataResponse = await resp.json();
-   return { stadium, weather };
- }
+    weatherList.innerHTML = '<div class="loading">Loading weather data...</div>';
 
- displayWeather(weatherDataArray: WeatherData[]): void {
-   const weatherList = document.getElementById('weatherList');
-   if (!weatherList) return;
-   
-   weatherList.innerHTML = '';
+    try {
+      checkApiKey();
+      const requests = selectedTeams.map((stadium) => this.fetchWeatherForStadium(stadium, dateVal));
+      const results = await Promise.all(requests);
+      this.displayWeather(results);
+    } catch (error: any) {
+      console.error('Error in refreshWeather:', error);
+      this.showError('Could not fetch weather data', error.message);
+    }
+  }
 
-   weatherDataArray.forEach(({ stadium, weather }) => {
-     const iconCode = weather.weather[0].icon;
-     const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+  getSelectedTeams(): StadiumInfo[] {
+    const teams: StadiumInfo[] = [];
+    const types: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
 
-     const card = document.createElement('div');
-     card.className = 'weather-card';
+    types.forEach((type) => {
+      const dropdown = document.getElementById(`${type}Dropdown`);
+      const selected = dropdown?.querySelector('.dropdown-selected')?.textContent;
 
-     card.innerHTML = `
-       <div class="weather-info">
-         <div>
-           <div class="text-lg font-bold">${stadium.name}</div>
-           <div class="text-sm mb-1">${stadium.team}</div>
-           <div class="conditions text-sm mb-1">
-             <p>${weather.weather[0].main}</p>
-             <p>Feels like: ${Math.round(weather.main.feels_like)}°F</p>
-           </div>
-           <div class="details text-sm">
-             <p>Humidity: ${weather.main.humidity}%</p>
-             <p>Wind: ${Math.round(weather.wind.speed)} mph</p>
-           </div>
-         </div>
-         <div>
-           <img
-             src="${iconUrl}"
-             alt="${weather.weather[0].description}"
-             class="w-12 h-12"
-           />
-         </div>
-       </div>
-     `;
-     
-     weatherList.appendChild(card);
-   });
- }
+      if (selected && selected !== `Select ${type.toUpperCase()} Team`) {
+        if (selected === `All ${type.toUpperCase()} Teams`) {
+          teams.push(...this.stadiumsMap[type]);
+        } else {
+          const filtered = this.stadiumsMap[type].filter(s => s.team.includes(selected));
+          teams.push(...filtered);
+        }
+      }
+    });
 
- showError(title: string, message?: string, isApiError: boolean = false): void {
-   const weatherList = document.getElementById('weatherList');
-   if (!weatherList) return;
-   
-   weatherList.innerHTML = '';
+    return teams;
+  }
 
-   const errorDiv = document.createElement('div');
-   errorDiv.className = `error-message ${isApiError ? 'api-key-missing' : ''}`;
+  async fetchWeatherForStadium(stadium: StadiumInfo, date: string): Promise<WeatherData> {
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${stadium.latitude}&lon=${stadium.longitude}&units=imperial&appid=${OPENWEATHER_API_KEY}`;
+    const resp = await fetch(url);
 
-   const titleEl = document.createElement('strong');
-   titleEl.textContent = title;
-   errorDiv.appendChild(titleEl);
+    if (!resp.ok) {
+      throw new Error(`Weather fetch error: ${resp.statusText}`);
+    }
 
-   if (message) {
-     const msgP = document.createElement('p');
-     msgP.textContent = message;
-     errorDiv.appendChild(msgP);
-   }
+    const weather: WeatherDataResponse = await resp.json();
+    return { stadium, weather };
+  }
 
-   const button = document.createElement('button');
-   button.textContent = isApiError ? 'Configure API Key' : 'Try Again';
-   button.className = 'primary-button mt-2';
-   button.addEventListener('click', () => {
-     if (isApiError) {
-       this.openSettings();
-     } else {
-       window.location.reload();
-     }
-   });
-   
-   errorDiv.appendChild(button);
-   weatherList.appendChild(errorDiv);
- }
+  displayWeather(weatherDataArray: WeatherData[]): void {
+  const weatherList = document.getElementById('weatherList');
+  if (!weatherList) return;
 
- openSettings(): void {
-   const mgr = new SettingsManager();
-   mgr.openModal();
- }
+  weatherList.innerHTML = ''; // Clear existing content
+
+  weatherDataArray.forEach(({ stadium, weather }) => {
+    // Instantiate a new WeatherCard
+    const card = new WeatherCard();
+    card.updateWeather(weather, stadium);
+
+    // Append the card to the weather list
+    weatherList.appendChild(card.render());
+  });
+}
+
+  showError(title: string, message?: string, isApiError: boolean = false): void {
+    const weatherList = document.getElementById('weatherList');
+    if (!weatherList) return;
+
+    weatherList.innerHTML = '';
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = `error-message bg-yellow-100 border border-yellow-200 text-yellow-800 p-4 rounded`;
+
+    const titleEl = document.createElement('strong');
+    titleEl.textContent = title;
+    errorDiv.appendChild(titleEl);
+
+    if (message) {
+      const msgP = document.createElement('p');
+      msgP.textContent = message;
+      errorDiv.appendChild(msgP);
+    }
+
+    const button = document.createElement('button');
+    button.textContent = isApiError ? 'Configure API Key' : 'Try Again';
+    button.className = 'primary-button mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700';
+    button.addEventListener('click', () => {
+      if (isApiError) {
+        this.openSettings();
+      } else {
+        window.location.reload();
+      }
+    });
+
+    errorDiv.appendChild(button);
+    weatherList.appendChild(errorDiv);
+  }
+
+  openSettings(): void {
+    const mgr = new SettingsManager();
+    mgr.openModal();
+  }
 }
 
 // Initialize the application
 function main() {
- new GameDayWeather();
+  new GameDayWeather();
 }
 
 if (document.readyState === 'loading') {
- document.addEventListener('DOMContentLoaded', main);
+  document.addEventListener('DOMContentLoaded', main);
 } else {
- main();
+  main();
 }
