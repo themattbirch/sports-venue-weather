@@ -1,6 +1,7 @@
 // /src/settings.ts
 
 import { safeGetItem, safeSetItem } from './utils/storage';
+import './styles/styles.css';
 
 interface AlertSettings {
   highTemp: number;
