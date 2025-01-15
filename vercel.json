@@ -13,26 +13,26 @@
       "destination": "https://$1"
     }
   ],
-   "rewrites": [
+  "rewrites": [
     {
       "source": "/",
-      "destination": "/index.html"
-    },
-      {
-      "source": "/app",
-      "destination": "/public/index.html"
-    },
-       {
-      "source": "/app/:path*",
-      "destination": "/public/index.html"
-    },
-       {
-      "source": "/app/service-worker.js",
-      "destination": "/app/service-worker.js"
+      "destination": "/home.html"
     },
     {
-     "source": "/.well-known/assetlinks.json",
-     "destination": "/.well-known/assetlinks.json"
+      "source": "/app",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/app/:path*",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/service-worker.js",
+      "destination": "/service-worker.js"
+    },
+    {
+      "source": "/.well-known/assetlinks.json",
+      "destination": "/.well-known/assetlinks.json"
     },
     {
       "source": "/manifest.webmanifest",
