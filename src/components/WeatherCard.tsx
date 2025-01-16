@@ -1,14 +1,13 @@
-// src/components/WeatherCard.tsx
-
 import React from 'react';
 import { StadiumInfo, WeatherDataResponse } from '../types';
 
 interface WeatherCardProps {
   stadium: StadiumInfo;
   weather: WeatherDataResponse;
+  temperatureUnit: 'F' | 'C';
 }
 
-export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather }) => {
+export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather, temperatureUnit }) => {
   const getWindDirection = (degrees: number): string => {
     const directions = [
       'N','NNE','NE','ENE','E','ESE','SE','SSE',
@@ -97,7 +96,6 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather }) =>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-4">
         <div className="flex items-center gap-2">
-          {/* Temperature Icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-red-500"
@@ -114,11 +112,10 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather }) =>
           </svg>
           <div>
             <p className="text-sm text-gray-500">Temperature</p>
-            <p className="font-medium">{Math.round(main.temp)}°F</p>
+            <p className="font-medium">{Math.round(main.temp)}°{temperatureUnit}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Humidity Icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-blue-500"
@@ -139,7 +136,6 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather }) =>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Wind Icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-gray-500"
@@ -162,7 +158,6 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather }) =>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Feels Like Icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-gray-400"
@@ -179,7 +174,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather }) =>
           </svg>
           <div>
             <p className="text-sm text-gray-500">Feels Like</p>
-            <p className="font-medium">{Math.round(main.feels_like)}°F</p>
+            <p className="font-medium">{Math.round(main.feels_like)}°{temperatureUnit}</p>
           </div>
         </div>
       </div>

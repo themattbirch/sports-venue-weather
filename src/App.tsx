@@ -35,6 +35,13 @@ const App: React.FC = () => {
     initializeApp();
   }, []);
 
+  useEffect(() => {
+  const selectedTeams = getSelectedTeams();
+  if (selectedTeams.length > 0) {
+    refreshWeather();
+  }
+}, [temperatureUnit]);
+
   const initializeApp = async () => {
     try {
       // Check API key from storage or environment
@@ -114,16 +121,18 @@ const App: React.FC = () => {
   };
 
   const handleSettingsChange = () => {
-    const updatedSettings = SettingsManager.getAll();
-    setDarkMode(updatedSettings.darkMode);
-    setTemperatureUnit(updatedSettings.temperatureUnit);
-    if (updatedSettings.darkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-    refreshWeather();
-  };
+  const updatedSettings = SettingsManager.getAll();
+  
+  // Update dark mode
+  setDarkMode(updatedSettings.darkMode);
+  if (updatedSettings.darkMode) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+    // Update temperature unit - useEffect will handle the refresh
+  setTemperatureUnit(updatedSettings.temperatureUnit);
+};
 
   const setupGlobalEventListeners = () => {
     // Listen for settings changes
@@ -336,7 +345,12 @@ const App: React.FC = () => {
 
   const displayWeather = (): JSX.Element[] => {
     return weatherData.map(({ stadium, weather }) => (
-      <WeatherCard key={stadium.name} stadium={stadium} weather={weather} />
+      <WeatherCard 
+        key={stadium.name} 
+        stadium={stadium} 
+        weather={weather}
+        temperatureUnit={temperatureUnit}
+      />
     ));
   };
 
