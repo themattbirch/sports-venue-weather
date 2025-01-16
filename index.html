@@ -1,21 +1,170 @@
-<!-- index.html at project root -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stadium Weather - Real-time Football Stadium Weather</title>
+    <meta name="description"
+        content="Get real-time weather information for NFL and NCAA football stadiums. Make informed decisions with accurate weather data.">
     <link rel="icon" href="/favicon.ico">
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="theme-color" content="#2E5A27" />
-    <meta name="description" content="Check real-time weather for NFL, NCAA Football, MLB, and MLS stadiums." />
-    <title>Stadium Weather - App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body class="bg-white dark:bg-gray-900">
-    <div id="root"></div>
-    <script type="module" src="./src/entry.tsx"></script>
+<body class="min-h-screen bg-gradient-to-b from-sky-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <i data-lucide="cloud-sun" class="w-8 h-8 text-sky-600 dark:text-sky-400"></i>
+                    <span class="ml-2 font-bold text-gray-900 dark:text-white">Stadium Weather</span>
+                </div>
+                <div>
+                    <a href="/app"
+                        class="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 transition-colors">
+                        Launch App
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-32 pb-16 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                Your Football Stadium Weather Guide
+            </h1>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8">
+                Get real-time weather updates for every NFL and NCAA football stadium. Make informed decisions with
+                accurate, up-to-date weather data.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/app"
+                    class="bg-sky-600 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-sky-700 transition-colors">
+                    Get Started
+                </a>
+                <a href="#features"
+                    class="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Grid -->
+    <section id="features" class="py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+                Key Features
+            </h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Real-time Weather -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="w-12 h-12 bg-sky-100 dark:bg-sky-900 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="cloud-sun" class="w-6 h-6 text-sky-600 dark:text-sky-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Real-time Updates</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Get current weather conditions including temperature,
+                        wind, and precipitation.</p>
+                </div>
+
+                <!-- All Stadiums -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="w-12 h-12 bg-sky-100 dark:bg-sky-900 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="stadium" class="w-6 h-6 text-sky-600 dark:text-sky-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">All Stadiums</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Coverage for every NFL and NCAA football stadium in one
+                        place.</p>
+                </div>
+
+                <!-- Easy Search -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="w-12 h-12 bg-sky-100 dark:bg-sky-900 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="search" class="w-6 h-6 text-sky-600 dark:text-sky-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Quick Search</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Find your team's stadium weather instantly with our fast
+                        search feature.</p>
+                </div>
+
+                <!-- Offline Support -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="w-12 h-12 bg-sky-100 dark:bg-sky-900 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="wifi-off" class="w-6 h-6 text-sky-600 dark:text-sky-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Offline Access</h3>
+                    <p class="text-gray-600 dark:text-gray-300">View previously loaded weather data even without
+                        internet connection.</p>
+                </div>
+
+                <!-- Dark Mode -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="w-12 h-12 bg-sky-100 dark:bg-sky-900 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="moon" class="w-6 h-6 text-sky-600 dark:text-sky-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Dark Mode</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Comfortable viewing with automatic dark mode based on
+                        your preferences.</p>
+                </div>
+
+                <!-- Installation -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="w-12 h-12 bg-sky-100 dark:bg-sky-900 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="download" class="w-6 h-6 text-sky-600 dark:text-sky-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Easy Install</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Install as a PWA for quick access on any device.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 px-4 bg-sky-600">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-3xl font-bold text-white mb-4">
+                Never Miss a Weather Update
+            </h2>
+            <p class="text-sky-100 mb-8 max-w-2xl mx-auto">
+                Join fans who trust Stadium Weather for their game-day weather information.
+            </p>
+            <a href="/app"
+                class="bg-white text-sky-600 px-8 py-4 rounded-lg text-lg font-medium hover:bg-sky-50 transition-colors inline-block">
+                Get Started Now
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4 bg-gray-50 dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-600 dark:text-gray-400">
+                © 2025 Optimize Web Solutions. All rights reserved.
+            </p>
+            <div class="mt-4 space-x-4">
+                <a href="/privacy" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                    Privacy Policy
+                </a>
+                <a href="/terms" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                    Terms of Service
+                </a>
+                <a href="/support" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                    Support
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
 </body>
 
 </html>

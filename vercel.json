@@ -4,7 +4,6 @@
       "source": "/",
       "destination": "/home.html"
     },
-
     {
       "source": "/app",
       "destination": "/index.html"
@@ -13,7 +12,6 @@
       "source": "/app/:path*",
       "destination": "/index.html"
     },
-
     {
       "source": "/app/data/:path*",
       "destination": "/data/:path*"
@@ -22,7 +20,6 @@
       "source": "/data/:path*",
       "destination": "/data/:path*"
     },
-
     {
       "source": "/app/offline",
       "destination": "/offline.html"
@@ -31,12 +28,10 @@
       "source": "/app/offline.html",
       "destination": "/offline.html"
     },
-
     {
       "source": "/app/service-worker.js",
       "destination": "/service-worker.js"
     },
-
     {
       "source": "/manifest.webmanifest",
       "destination": "/manifest.webmanifest"

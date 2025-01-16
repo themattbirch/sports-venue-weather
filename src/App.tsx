@@ -140,7 +140,7 @@ const App: React.FC = () => {
   // Called after stadium data is loaded => sets up the actual dropdown logic
   useEffect(() => {
     if (stadiumsMap.nfl.length > 0) {
-      console.log('Stadium data loaded. Setting up dropdowns now...');
+      console.log('Stadium data loaded.');
       initializeDropdowns();
     }
   }, [stadiumsMap]);
