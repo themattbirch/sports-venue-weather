@@ -13,7 +13,7 @@ import {
 } from './types';
 import { WeatherCard } from './components/WeatherCard';
 
-const OPENWEATHER_API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
+const ENV_API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
 
 const App: React.FC = () => {
   const [stadiumsMap, setStadiumsMap] = useState<StadiumsMap>({
@@ -33,32 +33,22 @@ const App: React.FC = () => {
 
   useEffect(() => {
     initializeApp();
-    // We won't do advanced DOM event listeners until stadium data is loaded.
   }, []);
-
-  // Once stadiumsMap is loaded, do the DOM-based dropdown logic
-  useEffect(() => {
-    if (stadiumsMap.nfl.length > 0) {
-      setupEventListeners();
-      initializeDropdowns();
-    }
-  }, [stadiumsMap]);
 
   const initializeApp = async () => {
     try {
-      // Retrieve API key from safe storage if available
+      // Check API key from storage or environment
       const storedApiKey = safeGetItem('openweatherApiKey');
-      const apiKey = storedApiKey || OPENWEATHER_API_KEY;
-      if (!apiKey) {
+      const finalApiKey = storedApiKey || ENV_API_KEY;
+      if (!finalApiKey) {
         throw new Error('OpenWeather API key not found in environment variables');
       }
 
-      // Retrieve dark mode and temperature unit preferences
+      // Load settings
       const storedSettings = SettingsManager.getAll();
       setDarkMode(storedSettings.darkMode || false);
       setTemperatureUnit(storedSettings.temperatureUnit || 'F');
 
-      // Apply dark mode if enabled
       if (storedSettings.darkMode) {
         document.body.classList.add('dark-mode');
       } else {
@@ -66,9 +56,11 @@ const App: React.FC = () => {
       }
 
       // Load stadium data
-      // Make sure the files exist in /public/data
       const stadiumData = await loadStadiumData();
       setStadiumsMap(stadiumData);
+
+      // Setup global listeners for now
+      setupGlobalEventListeners();
     } catch (err: any) {
       console.error('Initialization error:', err);
       showError('Initialization Error', err.message, true);
@@ -77,8 +69,7 @@ const App: React.FC = () => {
 
   const loadStadiumData = async (): Promise<StadiumsMap> => {
     try {
-      // Since they're in /public/data, we fetch them by absolute path "/data"
-      // (Vercel rewrites handle the /app route).
+      // We'll keep fetch('/data/...'), so ensure we have a rewrite to handle /app/data -> /data
       const [footballResp, otherResp] = await Promise.all([
         fetch('/data/stadium_coordinates.json'),
         fetch('/data/more_stadium_coordinates.json'),
@@ -100,11 +91,7 @@ const App: React.FC = () => {
       };
     } catch (err: any) {
       console.error('Error loading stadium data:', err);
-      showError(
-        'Could not load stadium data',
-        'Check your connection and try again.',
-        true
-      );
+      showError('Could not load stadium data', 'Check your connection and try again.', true);
       throw err;
     }
   };
@@ -126,47 +113,81 @@ const App: React.FC = () => {
     setError({ title, message, isApiError });
   };
 
-  const checkApiKey = (): void => {
-    if (!OPENWEATHER_API_KEY) {
-      throw new Error('OpenWeather API key not found in environment variables');
+  const handleSettingsChange = () => {
+    const updatedSettings = SettingsManager.getAll();
+    setDarkMode(updatedSettings.darkMode);
+    setTemperatureUnit(updatedSettings.temperatureUnit);
+    if (updatedSettings.darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
     }
+    refreshWeather();
   };
 
-  // --- DROPDOWN + EVENT HANDLING LOGIC ---
+  const setupGlobalEventListeners = () => {
+    // Listen for settings changes
+    window.addEventListener('settingsChanged', handleSettingsChange);
 
-  // This populates the <li> elements for each league
-  const populateAllDropdowns = (data: StadiumsMap) => {
-    Object.keys(data).forEach((type) => {
-      populateDropdown(type as LeagueType, data[type as LeagueType]);
+    // (Optionally) close dropdowns if clicking outside
+    document.addEventListener('click', (e) => {
+      if (!(e.target as HTMLElement).closest('.custom-dropdown')) {
+        closeAllDropdowns();
+      }
     });
   };
 
-  const populateDropdown = (type: LeagueType, stadiums: StadiumInfo[]) => {
-    const dropdown = document.getElementById(`${type}Dropdown`);
+  // Called after stadium data is loaded => sets up the actual dropdown logic
+  useEffect(() => {
+    if (stadiumsMap.nfl.length > 0) {
+      console.log('Stadium data loaded. Setting up dropdowns now...');
+      initializeDropdowns();
+    }
+  }, [stadiumsMap]);
+
+  const initializeDropdowns = () => {
+    populateAllDropdowns(stadiumsMap);
+
+    const leagues: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
+    leagues.forEach((league) => {
+      const dropdown = document.getElementById(`${league}Dropdown`) as HTMLElement;
+      if (dropdown) {
+        initializeCustomDropdown(dropdown, league);
+      }
+    });
+  };
+
+  const populateAllDropdowns = (data: StadiumsMap) => {
+    Object.keys(data).forEach((league) => {
+      populateDropdown(league as LeagueType, data[league as LeagueType]);
+    });
+  };
+
+  const populateDropdown = (league: LeagueType, stadiums: StadiumInfo[]) => {
+    const dropdown = document.getElementById(`${league}Dropdown`);
     if (!dropdown) return;
 
     const list = dropdown.querySelector('.dropdown-list') as HTMLElement;
     if (!list) return;
 
-    // Clear existing options except search
+    // Clear existing except the search row
     list.innerHTML = `<li class="dropdown-search"><input type="text" placeholder="Search teams..." /></li>`;
 
-    // Gather all teams from stadium data
+    // Build set of unique teams
     const teamNames = new Set<string>();
-    stadiums.forEach((stadium) => {
-      if (stadium.team) {
-        // Some stadiums might hold multiple teams, so we split
-        stadium.team.split(/,|\//).forEach((t) => teamNames.add(t.trim()));
+    stadiums.forEach((s) => {
+      if (s.team) {
+        s.team.split(/,|\//).forEach((t) => teamNames.add(t.trim()));
       }
     });
 
-    // 'All Teams' entry
+    // 'All Teams'
     const allOption = document.createElement('li');
-    allOption.textContent = `All ${type.toUpperCase()} Teams`;
+    allOption.textContent = `All ${league.toUpperCase()} Teams`;
     allOption.dataset.value = 'all';
     list.appendChild(allOption);
 
-    // Each team
+    // Individual teams
     Array.from(teamNames)
       .sort()
       .forEach((team) => {
@@ -177,70 +198,16 @@ const App: React.FC = () => {
       });
   };
 
-  const setupEventListeners = () => {
-    // Setup refresh button
-    const refreshBtn = document.getElementById('refresh');
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', () => refreshWeather());
-    }
-
-    // Setup settings buttons (both 'settings' and 'settings-btn')
-    const settingsBtn = document.getElementById('settings');
-    const settingsBtnText = document.getElementById('settings-btn');
-
-    if (settingsBtn) {
-      settingsBtn.addEventListener('click', () => SettingsManager.openModal());
-    }
-    if (settingsBtnText) {
-      settingsBtnText.addEventListener('click', () => SettingsManager.openModal());
-    }
-
-    // Listen for settings changes
-    window.addEventListener('settingsChanged', handleSettingsChange);
-
-    // Close dropdowns if clicking outside
-    document.addEventListener('click', (e) => {
-      if (!(e.target as HTMLElement).closest('.custom-dropdown')) {
-        closeAllDropdowns();
-      }
-    });
-  };
-
-  const handleSettingsChange = () => {
-    const updatedSettings = SettingsManager.getAll();
-    setDarkMode(updatedSettings.darkMode);
-    setTemperatureUnit(updatedSettings.temperatureUnit);
-
-    if (updatedSettings.darkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-    refreshWeather(); // Update displayed weather if unit changed
-  };
-
-  const initializeDropdowns = () => {
-    // Populate data first
-    populateAllDropdowns(stadiumsMap);
-
-    const dropdownTypes: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
-    dropdownTypes.forEach((type) => {
-      const dropdown = document.getElementById(`${type}Dropdown`) as HTMLElement;
-      if (dropdown) {
-        initializeCustomDropdown(dropdown, type);
-      }
-    });
-  };
-
-  const initializeCustomDropdown = (dropdown: HTMLElement, type: LeagueType): void => {
+  const initializeCustomDropdown = (dropdown: HTMLElement, league: LeagueType) => {
     const selected = dropdown.querySelector('.dropdown-selected') as HTMLElement;
     const list = dropdown.querySelector('.dropdown-list') as HTMLElement;
-    const searchInput = dropdown.querySelector('.dropdown-search input') as HTMLInputElement;
+    const searchInput = list.querySelector('.dropdown-search input') as HTMLInputElement;
 
-    // Toggle dropdown
     dropdown.addEventListener('click', (e) => {
+      console.log('Clicked dropdown for:', league); // debug
       e.stopPropagation();
-      // If user didn't click inside the search box, toggle open/close
+
+      // If user didn't click inside search, toggle
       if (!e.target || !(e.target as HTMLElement).closest('.dropdown-search')) {
         closeAllDropdowns(dropdown);
         dropdown.classList.toggle('active');
@@ -255,90 +222,48 @@ const App: React.FC = () => {
       e.stopPropagation();
       const target = e.target as HTMLElement;
       if (target.tagName.toLowerCase() === 'li' && !target.classList.contains('dropdown-search')) {
-        const selectedValue = target.dataset.value;
-        const selectedText = target.textContent || '';
+        const value = target.dataset.value;
+        const text = target.textContent || '';
         if (selected) {
-          selected.textContent = selectedText;
+          selected.textContent = text;
           dropdown.classList.remove('active');
-          handleDropdownSelection(type, selectedValue);
+          handleDropdownSelection(league, value);
         }
       }
     });
 
     // Searching
     searchInput.addEventListener('input', () => {
-      const filter = searchInput.value.toLowerCase();
+      const filterVal = searchInput.value.toLowerCase();
       const items = list.querySelectorAll('li:not(.dropdown-search)');
       items.forEach((item) => {
-        const text = item.textContent?.toLowerCase() || '';
-        (item as HTMLElement).style.display = text.includes(filter) ? '' : 'none';
+        const txt = item.textContent?.toLowerCase() || '';
+        (item as HTMLElement).style.display = txt.includes(filterVal) ? '' : 'none';
       });
-    });
-
-    // Keyboard navigation
-    dropdown.addEventListener('keydown', (e) => {
-      const active = dropdown.classList.contains('active');
-
-      switch (e.key) {
-        case 'Enter':
-          e.preventDefault();
-          if (active) {
-            const visibleItems = Array.from(
-              list.querySelectorAll(
-                'li:not(.dropdown-search):not([style*="display: none"])'
-              )
-            ) as HTMLElement[];
-            if (visibleItems.length > 0) {
-              visibleItems[0].click();
-            }
-          } else {
-            dropdown.click();
-          }
-          break;
-        case 'Escape':
-          if (active) dropdown.classList.remove('active');
-          break;
-        case 'ArrowDown':
-          if (active) {
-            e.preventDefault();
-            const visibleItems = Array.from(
-              list.querySelectorAll(
-                'li:not(.dropdown-search):not([style*="display: none"])'
-              )
-            ) as HTMLElement[];
-            if (visibleItems.length > 0) {
-              visibleItems[0].focus();
-            }
-          }
-          break;
-      }
     });
   };
 
-  const closeAllDropdowns = (currentDropdown?: HTMLElement): void => {
-    const dropdowns = document.querySelectorAll('.custom-dropdown.active');
-    dropdowns.forEach((dd) => {
-      if (dd !== currentDropdown) {
+  const closeAllDropdowns = (current?: HTMLElement) => {
+    const allActive = document.querySelectorAll('.custom-dropdown.active');
+    allActive.forEach((dd) => {
+      if (dd !== current) {
         dd.classList.remove('active');
       }
     });
   };
 
-  const handleDropdownSelection = async (type: LeagueType, selectedValue: string | undefined) => {
+  const handleDropdownSelection = async (league: LeagueType, selectedValue: string | undefined) => {
     if (!selectedValue) return;
-
-    // When user selects one league's team, reset the others
-    const allTypes: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
-    allTypes.forEach((t) => {
-      if (t !== type) {
-        const dropdown = document.getElementById(`${t}Dropdown`);
-        const selected = dropdown?.querySelector('.dropdown-selected');
-        if (selected) {
-          selected.textContent = `Select ${t.toUpperCase()} Team`;
+    // Reset other leagues
+    ['nfl', 'ncaa', 'mlb', 'mls'].forEach((l) => {
+      if (l !== league) {
+        const dd = document.getElementById(`${l}Dropdown`);
+        const sel = dd?.querySelector('.dropdown-selected');
+        if (sel) {
+          sel.textContent = `Select ${l.toUpperCase()} Team`;
         }
       }
     });
-
     await refreshWeather();
   };
 
@@ -355,9 +280,14 @@ const App: React.FC = () => {
     }
 
     try {
-      checkApiKey();
+      const storedKey = safeGetItem('openweatherApiKey');
+      const finalApiKey = storedKey || ENV_API_KEY;
+      if (!finalApiKey) {
+        throw new Error('OpenWeather API key not found in environment variables');
+      }
+
       const results = await Promise.all(
-        teams.map((stadium) => fetchWeatherForStadium(stadium, dateVal))
+        teams.map((stadium) => fetchWeatherForStadium(stadium, dateVal, finalApiKey))
       );
       setWeatherData(results);
       setError(null);
@@ -368,47 +298,40 @@ const App: React.FC = () => {
   };
 
   const getSelectedTeams = (): StadiumInfo[] => {
-    const chosen: StadiumInfo[] = [];
-    const types: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
-
-    types.forEach((type) => {
-      const dropdown = document.getElementById(`${type}Dropdown`);
-      const selected = dropdown?.querySelector('.dropdown-selected')?.textContent;
+    const out: StadiumInfo[] = [];
+    const leagues: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
+    leagues.forEach((l) => {
+      const dd = document.getElementById(`${l}Dropdown`);
+      const selected = dd?.querySelector('.dropdown-selected')?.textContent;
       if (selected && !selected.includes('Select') && !selected.includes('Team')) {
-        // Check if user clicked 'All TEAMS'
-        if (selected === `All ${type.toUpperCase()} Teams`) {
-          chosen.push(...stadiumsMap[type]);
+        if (selected === `All ${l.toUpperCase()} Teams`) {
+          out.push(...stadiumsMap[l]);
         } else {
-          // Some stadium objects have multiple possible 'team' text
-          const filtered = stadiumsMap[type].filter((s) => {
-            // s.team can be "Team A / Team B", so we check if selected is in that string
+          const matches = stadiumsMap[l].filter((s) => {
             return s.team.split(/,|\//).map((x) => x.trim()).includes(selected);
           });
-          chosen.push(...filtered);
+          out.push(...matches);
         }
       }
     });
-    return chosen;
+    return out;
   };
 
-  const fetchWeatherForStadium = async (stadium: StadiumInfo, date: string): Promise<WeatherData> => {
-    // The date param is not used by OpenWeather's current endpoint,
-    // but you can incorporate it later if you add historical/forecast logic.
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${
-      stadium.latitude
-    }&lon=${
-      stadium.longitude
-    }&units=${
+  const fetchWeatherForStadium = async (
+    stadium: StadiumInfo,
+    date: string,
+    apiKey: string
+  ): Promise<WeatherData> => {
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${stadium.latitude}&lon=${stadium.longitude}&units=${
       temperatureUnit === 'C' ? 'metric' : 'imperial'
-    }&appid=${OPENWEATHER_API_KEY}`;
+    }&appid=${apiKey}`;
 
     const resp = await fetch(url);
     if (!resp.ok) {
       throw new Error(`Weather fetch error: ${resp.statusText}`);
     }
-    const weatherJson: WeatherDataResponse = await resp.json();
-
-    return { stadium, weather: weatherJson };
+    const json: WeatherDataResponse = await resp.json();
+    return { stadium, weather: json };
   };
 
   const displayWeather = (): JSX.Element[] => {
@@ -418,18 +341,11 @@ const App: React.FC = () => {
   };
 
   const toggleTheme = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-
-    // Save to settings manager
-    const currentSettings = SettingsManager.getAll();
-    SettingsManager.saveSettings({
-      ...currentSettings,
-      darkMode: newDarkMode,
-    });
-
-    // Update DOM
-    if (newDarkMode) {
+    const newDark = !darkMode;
+    setDarkMode(newDark);
+    const current = SettingsManager.getAll();
+    SettingsManager.saveSettings({ ...current, darkMode: newDark });
+    if (newDark) {
       document.body.classList.add('dark-mode');
     } else {
       document.body.classList.remove('dark-mode');
@@ -441,64 +357,17 @@ const App: React.FC = () => {
       {/* Header */}
       <header className="header p-4 flex justify-between items-center bg-green-800 rounded-lg">
         <div className="flex items-center w-full">
-          {/* Moon/Sun SVG for Theme Toggle */}
           <button
             onClick={toggleTheme}
             className="icon-button theme-toggle focus:outline-none mr-4"
             aria-label="Toggle Dark Mode"
           >
-            {darkMode ? (
-              // Sun Icon for Light Mode
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="#eab308"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 3v2m0 14v2M5.45 5.45l1.41 1.41m10.28 10.28l1.41 1.41M3 12h2m14 0h2M5.45 18.55l1.41-1.41m10.28-10.28l1.41-1.41M12 7a5 5 0 110 10 5 5 0 010-10z"
-                />
-              </svg>
-            ) : (
-              // Moon Icon for Dark Mode
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-gray-800 dark:text-gray-200"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"
-                />
-              </svg>
-            )}
+            {darkMode ? '🌞' : '🌙'}
           </button>
-
           <h1 className="text-2xl font-bold text-white flex-grow text-center">
             Stadium Weather
           </h1>
-
-          <button id="settings" className="icon-button">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              width="24"
-              height="24"
-            >
-              <path
-                d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5zm7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.488.488 0 0 0 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65z"
-              />
-            </svg>
-          </button>
+          <button id="settings" className="icon-button">⚙</button>
         </div>
       </header>
 
@@ -514,6 +383,7 @@ const App: React.FC = () => {
         <button
           id="refresh"
           className="primary-button bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          onClick={() => refreshWeather()}
         >
           Refresh
         </button>
@@ -521,13 +391,14 @@ const App: React.FC = () => {
         <button
           id="settings-btn"
           className="primary-button bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          onClick={() => SettingsManager.openModal()}
         >
           Settings
         </button>
       </div>
 
       {/* Dropdowns */}
-      <div className="dropdowns-container">
+      <div className="dropdowns-container relative p-4">
         <div className="custom-dropdown" id="nflDropdown">
           <label className="block text-gray-700 dark:text-gray-300">NFL</label>
           <div className="dropdown-selected">Select NFL Team</div>
