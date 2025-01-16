@@ -1,16 +1,12 @@
 // public/service-worker.js
 
-const CACHE_NAME = "stadium-weather-v1";
+const CACHE_NAME = "stadium-weather";
 // If your site is served at / (root) with an index.html, great.
 // Otherwise, remove or adjust the lines that don't exist in your final build.
 const PRECACHE_URLS = [
-  "/index.html", // or "/app/index.html" if your PWA is at /app
+  "/index.html", 
   "/offline.html",
   "/manifest.webmanifest",
-  "/icons/football16.png",
-  "/icons/football32.png",
-  "/icons/football192.png",
-  "/icons/football512.png",
 ];
 
 const OFFLINE_FALLBACK_URL = "/offline.html";

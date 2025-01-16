@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/home.html"
+      "destination": "/index.html"
     },
     {
       "source": "/app",
-      "destination": "/index.html"
+      "destination": "/public/index.html"
     },
     {
       "source": "/app/:path*",
-      "destination": "/index.html"
+      "destination": "/public/index.html"
     },
     {
       "source": "/app/data/:path*",
