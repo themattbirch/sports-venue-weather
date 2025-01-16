@@ -53,6 +53,10 @@
     {
       "source": "/icons/:path*",
       "destination": "/icons/:path*"
+    },
+    {
+      "source": "/app/data/:path*",
+      "destination": "/data/:path*"
     }
   ],
   "headers": [
