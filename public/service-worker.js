@@ -1,6 +1,6 @@
 // public/service-worker.js
 
-const CACHE_NAME = "stadium-weather";
+const CACHE_NAME = "sports-venu-weather";
 // If your site is served at / (root) with an index.html, great.
 // Otherwise, remove or adjust the lines that don't exist in your final build.
 const PRECACHE_URLS = [

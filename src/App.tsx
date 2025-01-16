@@ -461,7 +461,7 @@ const App: React.FC = () => {
         {weatherData.length > 0 ? (
           displayWeather()
         ) : (
-          <div>No weather data available.</div>
+          <div>Weather data will load here when you choose a venue.</div>
         )}
       </div>
 
