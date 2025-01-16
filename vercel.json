@@ -4,6 +4,7 @@
       "source": "/",
       "destination": "/home.html"
     },
+
     {
       "source": "/app",
       "destination": "/index.html"
@@ -12,6 +13,7 @@
       "source": "/app/:path*",
       "destination": "/index.html"
     },
+
     {
       "source": "/app/data/:path*",
       "destination": "/data/:path*"
@@ -20,14 +22,49 @@
       "source": "/data/:path*",
       "destination": "/data/:path*"
     },
+
     {
-      "source": "/service-worker.js",
+      "source": "/app/offline",
+      "destination": "/offline.html"
+    },
+    {
+      "source": "/app/offline.html",
+      "destination": "/offline.html"
+    },
+
+    {
+      "source": "/app/service-worker.js",
       "destination": "/service-worker.js"
+    },
+
+    {
+      "source": "/manifest.webmanifest",
+      "destination": "/manifest.webmanifest"
+    },
+    {
+      "source": "/app/manifest.webmanifest",
+      "destination": "/manifest.webmanifest"
+    },
+    {
+      "source": "/support",
+      "destination": "/support.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/icons/:path*",
+      "destination": "/icons/:path*"
     }
   ],
   "headers": [
     {
-      "source": "/service-worker.js",
+      "source": "/app/service-worker.js",
       "headers": [
         {
           "key": "Content-Type",
