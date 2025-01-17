@@ -105,15 +105,16 @@ class SettingsManager {
             </div>
         </div>
 
-        <div class="button-group flex justify-end space-x-2 mt-4">
-            <button class="cancel-btn bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
-              Cancel
-            </button>
-            <button class="save-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
-              Save
-            </button>
-        </div>
-      </div>
+        
+  <div class="button-group flex justify-start space-x-2 mt-4">
+      <button class="cancel-btn bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
+        Cancel
+      </button>
+      <button class="save-btn bg-[#2d8a4e] text-white px-4 py-2 rounded hover:bg-[#247040] transition-colors">
+        Save
+      </button>
+  </div>
+</div>
     `;
     return modal;
   }

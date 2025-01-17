@@ -436,63 +436,19 @@ const App: React.FC = () => {
             id="settings"
             className="icon-button"
             onClick={() => SettingsManager.openModal()}
+            aria-label="Open Settings"
           >
-            ⚙
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="#eab308"
+              className="transition-colors hover:text-[#f4ea80]"
+            >
+              <path d="M17.5 3.7c-1.3-.6-2.6-1-4-1.3C11.9 2.1 10.2 2 8.5 2 6.8 2 5.1 2.1 3.5 2.4c-1.4.3-2.7.7-4 1.3L1 5.3c.1 1.3.3 2.6.7 3.8.4 1.2.9 2.3 1.6 3.4.7 1.1 1.5 2 2.5 2.9 1 .9 2.1 1.6 3.3 2.2 1.2.6 2.5 1 3.9 1.3 1.4.3 2.8.4 4.3.4 1.5 0 2.9-.1 4.3-.4 1.4-.3 2.7-.7 3.9-1.3 1.2-.6 2.3-1.3 3.3-2.2 1-.9 1.8-1.8 2.5-2.9.7-1.1 1.2-2.2 1.6-3.4.4-1.2.6-2.5.7-3.8l1.5-1.6c-1.3-.6-2.6-1-4-1.3z" />
+            </svg>
           </button>
         </header>
-
-        {/* Controls */}
-        <div className="controls flex items-center space-x-3 mb-4">
-          <input
-            type="date"
-            id="weather-date"
-            className="
-              px-3 py-2
-              border border-gray-300 dark:border-gray-600
-              rounded
-              bg-white dark:bg-gray-700
-              text-gray-800 dark:text-gray-100
-              placeholder-gray-400 dark:placeholder-gray-500
-              focus:outline-none
-              focus:ring-2 focus:ring-primary
-              transition-colors
-            "
-            defaultValue={new Date().toISOString().split('T')[0]}
-          />
-
-          <button
-            id="refresh"
-            className="
-              primary-button
-              bg-blue-600 text-white
-              px-4 py-2
-              rounded
-              hover:bg-blue-700
-              dark:bg-blue-700 dark:hover:bg-blue-800
-              transition-colors
-            "
-            onClick={() => refreshWeather()}
-          >
-            Refresh
-          </button>
-
-          <button
-            id="settings-btn"
-            className="
-              primary-button
-              bg-green-600 text-white
-              px-4 py-2
-              rounded
-              hover:bg-green-700
-              dark:bg-green-700 dark:hover:bg-green-800
-              transition-colors
-            "
-            onClick={() => SettingsManager.openModal()}
-          >
-            Settings
-          </button>
-        </div>
-
         {/* Dropdowns */}
         <div className="dropdowns-container mb-4">
           {/* NFL */}
@@ -545,8 +501,56 @@ const App: React.FC = () => {
           </div>
         </div>
 
+        {/* Controls */}
+        <div className="controls flex items-center justify-between px-2 mb-4">
+          <button
+            id="refresh"
+            className="
+              primary-button
+              bg-blue-600 text-white
+              px-4 py-2
+              rounded
+              hover:bg-blue-700
+              dark:bg-blue-700 dark:hover:bg-blue-800
+              transition-colors
+              flex-1 mx-2
+            "
+            onClick={() => refreshWeather()}
+          >
+            Refresh
+          </button>
+
+          <input
+            type="date"
+            id="weather-date"
+            className="
+              px-3 py-2
+              border border-gray-300 dark:border-gray-600
+              rounded
+              bg-white dark:bg-gray-700
+              text-gray-800 dark:text-gray-100
+              placeholder-gray-400 dark:placeholder-gray-500
+              focus:outline-none
+              focus:ring-2 focus:ring-primary
+              transition-colors
+              flex-1 mx-2
+            "
+            defaultValue={new Date().toISOString().split('T')[0]}
+          />
+
+          <button
+            id="settings-btn"
+            className="
+              primary-button
+            "
+            onClick={() => SettingsManager.openModal()}
+          >
+            Settings
+          </button>
+        </div>
+
         {/* Weather List */}
-        <div id="weatherList" className="space-y-4">
+        <div id="weatherList" className="space-y-4 mb-4">
           {weatherData.length > 0 ? (
             displayWeather()
           ) : (
