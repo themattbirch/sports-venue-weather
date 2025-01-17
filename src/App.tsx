@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import './styles/styles.css';
 import { safeGetItem } from './utils/storage';
-import SettingsManager from './settings'; // Singleton instance
+import SettingsManager from './settings';
 import {
   StadiumInfo,
   WeatherData,
@@ -28,55 +28,69 @@ const App: React.FC = () => {
     message?: string;
     isApiError?: boolean;
   } | null>(null);
+
+  // Dark mode & temperature unit from settings
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [temperatureUnit, setTemperatureUnit] = useState<'F' | 'C'>('F');
 
+  // 1) On mount, load user settings, apply .dark if needed, load stadium data, setup listeners
   useEffect(() => {
-    initializeApp();
-  }, []);
+    (async () => {
+      try {
+        // 1a) Load user settings
+        const storedSettings = SettingsManager.getAll();
+        setDarkMode(storedSettings.darkMode);
+        setTemperatureUnit(storedSettings.temperatureUnit);
 
+        // 1b) Apply .dark on <html> if dark mode is on
+        if (storedSettings.darkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+
+        // 1c) Check OpenWeather API key
+        const storedApiKey = safeGetItem('openweatherApiKey');
+        const finalApiKey = storedApiKey || ENV_API_KEY;
+        if (!finalApiKey) {
+          throw new Error('OpenWeather API key not found in environment variables');
+        }
+
+        // 1d) Load stadium data
+        const stadiumData = await loadStadiumData();
+        setStadiumsMap(stadiumData);
+
+        // 1e) Setup global event listeners
+        setupGlobalEventListeners();
+      } catch (err: any) {
+        console.error('Initialization error:', err);
+        showError('Initialization Error', err.message, true);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount
+
+  // 2) If the temperature unit changes, and we already have a selected team, refresh weather
   useEffect(() => {
-  const selectedTeams = getSelectedTeams();
-  if (selectedTeams.length > 0) {
-    refreshWeather();
-  }
-}, [temperatureUnit]);
-
-  const initializeApp = async () => {
-    try {
-      // Check API key from storage or environment
-      const storedApiKey = safeGetItem('openweatherApiKey');
-      const finalApiKey = storedApiKey || ENV_API_KEY;
-      if (!finalApiKey) {
-        throw new Error('OpenWeather API key not found in environment variables');
-      }
-
-      // Load settings
-      const storedSettings = SettingsManager.getAll();
-      setDarkMode(storedSettings.darkMode || false);
-      setTemperatureUnit(storedSettings.temperatureUnit || 'F');
-
-      if (storedSettings.darkMode) {
-        document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-      }
-
-      // Load stadium data
-      const stadiumData = await loadStadiumData();
-      setStadiumsMap(stadiumData);
-
-      // Setup global listeners for now
-      setupGlobalEventListeners();
-    } catch (err: any) {
-      console.error('Initialization error:', err);
-      showError('Initialization Error', err.message, true);
+    const selectedTeams = getSelectedTeams();
+    if (selectedTeams.length > 0) {
+      refreshWeather();
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [temperatureUnit]);
+
+  // 3) Once stadium data is loaded, initialize dropdowns
+  useEffect(() => {
+    if (stadiumsMap.nfl.length > 0) {
+      initializeDropdowns();
+    }
+  }, [stadiumsMap]);
+
+  // --- CORE LOGIC ---
 
   const loadStadiumData = async (): Promise<StadiumsMap> => {
     try {
-      // We'll keep fetch('/data/...'), so ensure we have a rewrite to handle /app/data -> /data
+      // fetch both files in parallel
       const [footballResp, otherResp] = await Promise.all([
         fetch('/data/stadium_coordinates.json'),
         fetch('/data/more_stadium_coordinates.json'),
@@ -120,25 +134,11 @@ const App: React.FC = () => {
     setError({ title, message, isApiError });
   };
 
-  const handleSettingsChange = () => {
-  const updatedSettings = SettingsManager.getAll();
-  
-  // Update dark mode
-  setDarkMode(updatedSettings.darkMode);
-  if (updatedSettings.darkMode) {
-    document.body.classList.add('dark-mode');
-  } else {
-    document.body.classList.remove('dark-mode');
-  }
-    // Update temperature unit - useEffect will handle the refresh
-  setTemperatureUnit(updatedSettings.temperatureUnit);
-};
-
   const setupGlobalEventListeners = () => {
-    // Listen for settings changes
+    // Listen for settings changes (dark mode, temperature unit)
     window.addEventListener('settingsChanged', handleSettingsChange);
 
-    // (Optionally) close dropdowns if clicking outside
+    // Close any open dropdown if user clicks outside
     document.addEventListener('click', (e) => {
       if (!(e.target as HTMLElement).closest('.custom-dropdown')) {
         closeAllDropdowns();
@@ -146,14 +146,20 @@ const App: React.FC = () => {
     });
   };
 
-  // Called after stadium data is loaded => sets up the actual dropdown logic
-  useEffect(() => {
-    if (stadiumsMap.nfl.length > 0) {
-      console.log('Stadium data loaded.');
-      initializeDropdowns();
-    }
-  }, [stadiumsMap]);
+  const handleSettingsChange = () => {
+    const updatedSettings = SettingsManager.getAll();
+    setDarkMode(updatedSettings.darkMode);
+    setTemperatureUnit(updatedSettings.temperatureUnit);
 
+    // Toggle .dark on <html>
+    if (updatedSettings.darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  // 4) Initialize dropdowns after stadium data loaded
   const initializeDropdowns = () => {
     populateAllDropdowns(stadiumsMap);
 
@@ -179,13 +185,13 @@ const App: React.FC = () => {
     const list = dropdown.querySelector('.dropdown-list') as HTMLElement;
     if (!list) return;
 
-    // Clear existing except the search row
+    // Clear except search row
     list.innerHTML = `<li class="dropdown-search"><input type="text" placeholder="Search teams..." /></li>`;
 
-    // Build set of unique teams
     const teamNames = new Set<string>();
     stadiums.forEach((s) => {
       if (s.team) {
+        // some stadiums might have multiple teams
         s.team.split(/,|\//).forEach((t) => teamNames.add(t.trim()));
       }
     });
@@ -212,11 +218,9 @@ const App: React.FC = () => {
     const list = dropdown.querySelector('.dropdown-list') as HTMLElement;
     const searchInput = list.querySelector('.dropdown-search input') as HTMLInputElement;
 
+    // Toggle open/close on click (unless clicking in search)
     dropdown.addEventListener('click', (e) => {
-      console.log('Clicked dropdown for:', league); // debug
       e.stopPropagation();
-
-      // If user didn't click inside search, toggle
       if (!e.target || !(e.target as HTMLElement).closest('.dropdown-search')) {
         closeAllDropdowns(dropdown);
         dropdown.classList.toggle('active');
@@ -226,7 +230,7 @@ const App: React.FC = () => {
       }
     });
 
-    // Option selection
+    // Handle selection
     list.addEventListener('click', (e) => {
       e.stopPropagation();
       const target = e.target as HTMLElement;
@@ -253,8 +257,8 @@ const App: React.FC = () => {
   };
 
   const closeAllDropdowns = (current?: HTMLElement) => {
-    const allActive = document.querySelectorAll('.custom-dropdown.active');
-    allActive.forEach((dd) => {
+    const activeDropdowns = document.querySelectorAll('.custom-dropdown.active');
+    activeDropdowns.forEach((dd) => {
       if (dd !== current) {
         dd.classList.remove('active');
       }
@@ -263,8 +267,10 @@ const App: React.FC = () => {
 
   const handleDropdownSelection = async (league: LeagueType, selectedValue: string | undefined) => {
     if (!selectedValue) return;
+
     // Reset other leagues
-    ['nfl', 'ncaa', 'mlb', 'mls'].forEach((l) => {
+    const leagues: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
+    leagues.forEach((l) => {
       if (l !== league) {
         const dd = document.getElementById(`${l}Dropdown`);
         const sel = dd?.querySelector('.dropdown-selected');
@@ -273,11 +279,11 @@ const App: React.FC = () => {
         }
       }
     });
+
     await refreshWeather();
   };
 
-  // --- WEATHER ---
-
+  // 5) Weather fetch logic
   const refreshWeather = async () => {
     const teams = getSelectedTeams();
     const dateInput = document.getElementById('weather-date') as HTMLInputElement;
@@ -316,9 +322,10 @@ const App: React.FC = () => {
         if (selected === `All ${l.toUpperCase()} Teams`) {
           out.push(...stadiumsMap[l]);
         } else {
-          const matches = stadiumsMap[l].filter((s) => {
-            return s.team.split(/,|\//).map((x) => x.trim()).includes(selected);
-          });
+          // handle multi-team stadium
+          const matches = stadiumsMap[l].filter((s) =>
+            s.team.split(/,|\//).map((x) => x.trim()).includes(selected)
+          );
           out.push(...matches);
         }
       }
@@ -331,7 +338,9 @@ const App: React.FC = () => {
     date: string,
     apiKey: string
   ): Promise<WeatherData> => {
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${stadium.latitude}&lon=${stadium.longitude}&units=${
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${
+      stadium.latitude
+    }&lon=${stadium.longitude}&units=${
       temperatureUnit === 'C' ? 'metric' : 'imperial'
     }&appid=${apiKey}`;
 
@@ -343,147 +352,177 @@ const App: React.FC = () => {
     return { stadium, weather: json };
   };
 
+  // 6) Render the weather cards
   const displayWeather = (): JSX.Element[] => {
     return weatherData.map(({ stadium, weather }) => (
-      <WeatherCard 
-        key={stadium.name} 
-        stadium={stadium} 
+      <WeatherCard
+        key={stadium.name}
+        stadium={stadium}
         weather={weather}
         temperatureUnit={temperatureUnit}
       />
     ));
   };
 
+  // 7) Toggle theme manually from the header button
   const toggleTheme = () => {
     const newDark = !darkMode;
     setDarkMode(newDark);
     const current = SettingsManager.getAll();
     SettingsManager.saveSettings({ ...current, darkMode: newDark });
+
     if (newDark) {
-      document.body.classList.add('dark-mode');
+      document.documentElement.classList.add('dark');
     } else {
-      document.body.classList.remove('dark-mode');
+      document.documentElement.classList.remove('dark');
     }
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 min-h-screen relative">
-      {/* Header */}
-      <header className="header p-4 flex justify-between items-center bg-green-800 rounded-lg">
-        <div className="flex items-center w-full">
+    <div className="app-background min-h-screen">
+      <div className="app-card mx-auto mt-6 mb-6 p-4 max-w-md rounded-lg shadow-lg bg-white dark:bg-gray-800">
+        {/* Header */}
+        <header className="header mb-4 p-3 bg-green-800 rounded text-white flex justify-between items-center">
           <button
             onClick={toggleTheme}
-            className="icon-button theme-toggle focus:outline-none mr-4"
+            className="icon-button theme-toggle focus:outline-none mr-3"
             aria-label="Toggle Dark Mode"
           >
             {darkMode ? '🌞' : '🌙'}
           </button>
-          <h1 className="text-2xl font-bold text-white flex-grow text-center">
-            Stadium Weather
-          </h1>
-          <button id="settings" className="icon-button">⚙</button>
-        </div>
-      </header>
+          <h1 className="text-xl font-bold flex-grow text-center">Stadium Weather</h1>
+          <button id="settings" className="icon-button" onClick={() => SettingsManager.openModal()}>
+            ⚙
+          </button>
+        </header>
 
-      {/* Controls */}
-      <div className="controls flex items-center space-x-4 p-4">
-        <input
-          type="date"
-          id="weather-date"
-          className="px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800"
-          defaultValue={new Date().toISOString().split('T')[0]}
-        />
+        {/* Controls */}
+        <div className="controls flex items-center space-x-3 mb-4">
+          <input
+            type="date"
+            id="weather-date"
+            className="
+              px-3 py-2
+              border border-gray-300 dark:border-gray-600
+              rounded
+              bg-white dark:bg-gray-700
+              text-gray-800 dark:text-gray-100
+              placeholder-gray-400 dark:placeholder-gray-500
+              focus:outline-none
+              focus:ring-2 focus:ring-primary
+              transition-colors
+            "
+            defaultValue={new Date().toISOString().split('T')[0]}
+          />
 
-        <button
-          id="refresh"
-          className="primary-button bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={() => refreshWeather()}
-        >
-          Refresh
-        </button>
-
-        <button
-          id="settings-btn"
-          className="primary-button bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          onClick={() => SettingsManager.openModal()}
-        >
-          Settings
-        </button>
-      </div>
-
-      {/* Dropdowns */}
-      <div className="dropdowns-container relative p-4">
-        <div className="custom-dropdown" id="nflDropdown">
-          <label className="block text-gray-700 dark:text-gray-300">NFL</label>
-          <div className="dropdown-selected">Select NFL Team</div>
-          <ul className="dropdown-list" role="listbox">
-            <li className="dropdown-search">
-              <input type="text" placeholder="Search teams..." />
-            </li>
-          </ul>
-        </div>
-
-        <div className="custom-dropdown" id="ncaaDropdown">
-          <label className="block text-gray-700 dark:text-gray-300">
-            NCAA Football
-          </label>
-          <div className="dropdown-selected">Select NCAA Team</div>
-          <ul className="dropdown-list" role="listbox">
-            <li className="dropdown-search">
-              <input type="text" placeholder="Search teams..." />
-            </li>
-          </ul>
-        </div>
-
-        <div className="custom-dropdown" id="mlbDropdown">
-          <label className="block text-gray-700 dark:text-gray-300">MLB</label>
-          <div className="dropdown-selected">Select MLB Team</div>
-          <ul className="dropdown-list" role="listbox">
-            <li className="dropdown-search">
-              <input type="text" placeholder="Search teams..." />
-            </li>
-          </ul>
-        </div>
-
-        <div className="custom-dropdown" id="mlsDropdown">
-          <label className="block text-gray-700 dark:text-gray-300">MLS</label>
-          <div className="dropdown-selected">Select MLS Team</div>
-          <ul className="dropdown-list" role="listbox">
-            <li className="dropdown-search">
-              <input type="text" placeholder="Search teams..." />
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Weather List */}
-      <div id="weatherList" className="mt-6 space-y-4 p-4">
-        {weatherData.length > 0 ? (
-          displayWeather()
-        ) : (
-          <div>Weather data will load here when you choose a venue.</div>
-        )}
-      </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="error-message bg-yellow-100 border border-yellow-200 text-yellow-800 p-4 rounded m-4">
-          <strong>{error.title}</strong>
-          {error.message && <p>{error.message}</p>}
           <button
-            className="primary-button mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            onClick={() => {
-              if (error.isApiError) {
-                SettingsManager.openModal();
-              } else {
-                window.location.reload();
-              }
-            }}
+            id="refresh"
+            className="
+              primary-button
+              bg-blue-600 text-white
+              px-4 py-2
+              rounded
+              hover:bg-blue-700
+              dark:bg-blue-700 dark:hover:bg-blue-800
+              transition-colors
+            "
+            onClick={() => refreshWeather()}
           >
-            {error.isApiError ? 'Configure API Key' : 'Try Again'}
+            Refresh
+          </button>
+
+          <button
+            id="settings-btn"
+            className="
+              primary-button
+              bg-green-600 text-white
+              px-4 py-2
+              rounded
+              hover:bg-green-700
+              dark:bg-green-700 dark:hover:bg-green-800
+              transition-colors
+            "
+            onClick={() => SettingsManager.openModal()}
+          >
+            Settings
           </button>
         </div>
-      )}
+
+        {/* Dropdowns */}
+        <div className="dropdowns-container mb-4">
+          {/* NFL */}
+          <div className="custom-dropdown" id="nflDropdown">
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">NFL</label>
+            <div className="dropdown-selected">Select NFL Team</div>
+            <ul className="dropdown-list" role="listbox">
+              <li className="dropdown-search">
+                <input type="text" placeholder="Search teams..." />
+              </li>
+            </ul>
+          </div>
+          {/* NCAA */}
+          <div className="custom-dropdown" id="ncaaDropdown">
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">NCAA Football</label>
+            <div className="dropdown-selected">Select NCAA Team</div>
+            <ul className="dropdown-list" role="listbox">
+              <li className="dropdown-search">
+                <input type="text" placeholder="Search teams..." />
+              </li>
+            </ul>
+          </div>
+          {/* MLB */}
+          <div className="custom-dropdown" id="mlbDropdown">
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">MLB</label>
+            <div className="dropdown-selected">Select MLB Team</div>
+            <ul className="dropdown-list" role="listbox">
+              <li className="dropdown-search">
+                <input type="text" placeholder="Search teams..." />
+              </li>
+            </ul>
+          </div>
+          {/* MLS */}
+          <div className="custom-dropdown" id="mlsDropdown">
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">MLS</label>
+            <div className="dropdown-selected">Select MLS Team</div>
+            <ul className="dropdown-list" role="listbox">
+              <li className="dropdown-search">
+                <input type="text" placeholder="Search teams..." />
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Weather List */}
+        <div id="weatherList" className="space-y-4">
+          {weatherData.length > 0 ? (
+            displayWeather()
+          ) : (
+            <div className="text-gray-600 dark:text-gray-300">
+              Weather data will load here when you choose a venue.
+            </div>
+          )}
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="error-message bg-yellow-100 border border-yellow-200 text-yellow-800 p-4 rounded mt-4">
+            <strong>{error.title}</strong>
+            {error.message && <p>{error.message}</p>}
+            <button
+              className="primary-button mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => {
+                if (error.isApiError) {
+                  SettingsManager.openModal();
+                } else {
+                  window.location.reload();
+                }
+              }}
+            >
+              {error.isApiError ? 'Configure API Key' : 'Try Again'}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

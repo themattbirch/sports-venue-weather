@@ -2,57 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Root Variables */
+/* Light-mode fallback variables, if you need them. */
 :root {
   --primary-color: #2E5A27;
   --secondary-color: #f4ea80;
   --background-color: #F5F5F5;
   --text-color: #333;
   --card-background: #fff;
-  --settings-color: #e5d41a;
-  --button-background: #2E5A27;
-  --button-text-color: #fff;
-  --input-background: #fff;
-  --input-text-color: #333;
-  --leather-tan: #D2B48C;
-  --pigskin-brown: #8B4513;
-  --field-green: #2E5A27;
-  --chalk-white: #F5F5F5;
-  --stadium-gray: #666666;
-  --modal-bg-color: #ffffff;
-  --font-size-large: 16px;
-  --font-size-medium: 14px;
   --hover-background-color: #3d7a34;
-  --hover-text-color: #ffffff;
-  --value-color: #333333;
-  --temperature-color: #333333;
+  --hover-text-color: #fff;
   --dropdown-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Dark Mode Variables */
-body.dark-mode {
-  --primary-color: #1d3d1a;
-  --secondary-color: #8B4513;
-  --background-color: #1c1c1c;
-  --text-color: #e0e0e0;
-  --card-background: #2c2c2c;
-  --button-background: #4a4a4a;
-  --button-text-color: #fff;
-  --input-background: #2c2c2c;
-  --input-text-color: #e0e0e0;
-  --hover-background-color: #3d7a34;
-  --hover-text-color: #ffffff;
-  --value-color: #e0e0e0;
-  --temperature-color: #e0e0e0;
-  --dropdown-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* Global Styles */
+/* Basic resets */
 html, body {
   margin: 0;
   padding: 0;
-  height: 100vh;
-  overflow-y: hidden; 
 }
 
 body {
@@ -61,326 +26,170 @@ body {
   color: var(--text-color);
 }
 
-body.dark-mode {
-  @apply bg-gray-900 text-white;
+.app-background {
+  min-height: 100vh;
 }
 
-#root {
-  width: 100%;
-  max-width: 650px;
-  height: 100vh;
-  margin: 0 auto;
-  overflow-y: auto;
-  padding: 2rem;
-  box-sizing: border-box;
-  background-color: var(--background-color);
+.app-card {
+  background-color: var(--card-background);
+  color: var(--text-color);
 }
 
-/* Header Styles */
+/* Header */
 .header {
-  background-color: var(--primary-color);
-  padding: 1rem;
-  border-radius: 8px;
-  color: var(--button-text-color);
-  position: relative;
-  margin-bottom: 1.5rem;
+  border-radius: 6px;
 }
 
-.header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  text-align: center;
-  width: 100%;
-}
-
+/* Icon Buttons */
 .icon-button {
   width: 24px;
   height: 24px;
   transition: color 0.3s ease;
   background: none;
-  color: #eab308;
   border: none;
   cursor: pointer;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #eab308; /* default icon color for light mode */
 }
-
 .icon-button:hover {
-  color: var(--secondary-color);
+  color: var(--secondary-color); /* #f4ea80 by default */
 }
 
-.icon-button.theme-toggle svg {
-  color: #eab308 !important; /* Force override */
-}
-
-.icon-button.theme-toggle:hover svg {
-  color: var(--secondary-color) !important;
-}
-
-/* Dark mode styles */
-body.dark-mode .icon-button.theme-toggle svg {
-  color: #fff !important;
-}
-
-body.dark-mode .icon-button.theme-toggle:hover svg {
-  color: #eab308 !important;
-}
-
-/* Controls Styles */
+/* Controls */
 .controls {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  @apply flex gap-3;
 }
-
 .controls button {
   @apply px-4 py-2 rounded shadow text-sm font-medium transition-all duration-200;
 }
-
 .controls .primary-button {
-  @apply bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800;
+  @apply bg-blue-600 text-white hover:bg-blue-700
+    dark:bg-blue-700 dark:hover:bg-blue-800;
 }
 
-.controls .settings-button {
-  @apply bg-green-600 text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800;
+/* 
+  1) Date input icon styling:
+     We'll invert/recolor the native picker icon in dark mode
+     using ::-webkit-calendar-picker-indicator (Chrome, Edge, Safari).
+*/
+[type="date"]::-webkit-calendar-picker-indicator {
+  color: #333; /* Light mode default */
+  opacity: 0.9; /* Slight transparency */
 }
 
-/* Dropdown Styles */
-.team-dropdown {
-  position: relative;
-  max-width: 100%;
-  margin-bottom: 1rem;
+/* In dark mode, invert or lighten the icon */
+.dark [type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) hue-rotate(180deg);
+  opacity: 0.7;
 }
 
-.team-dropdown label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--text-color);
-}
-
+/* ============== DROPDOWNS ============== */
 .custom-dropdown {
   position: relative;
-  width: 100%;
   margin-bottom: 1rem;
 }
 
+/* 
+  2) Make sure .dropdown-selected & .dropdown-list items 
+     have text-gray-800 in light mode, text-gray-100 in dark mode.
+*/
 .dropdown-selected {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background-color: var(--input-background);
-  border: 1px solid var(--secondary-color);
-  border-radius: 0.375rem;
-  color: var(--input-text-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
+  @apply flex items-center justify-between 
+    px-4 py-3 
+    bg-white dark:bg-gray-700 
+    text-gray-800 dark:text-gray-100
+    border border-gray-300 dark:border-gray-600
+    rounded
+    cursor-pointer
+    transition-colors;
 }
 
 .custom-dropdown.active .dropdown-selected {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(46, 90, 39, 0.2);
+  /* highlight border/box */
+  @apply border-green-800 shadow-md;
 }
 
 .dropdown-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  margin-top: 0.25rem;
-  background-color: var(--input-background);
-  border: 1px solid var(--secondary-color);
-  border-radius: 0.375rem;
-  box-shadow: var(--dropdown-shadow);
-  z-index: 50;
-  display: none;
-  max-height: 300px;
-  overflow-y: auto;
+  @apply absolute top-full left-0 mt-1 w-full 
+    bg-white dark:bg-gray-700 
+    border border-gray-300 dark:border-gray-600 
+    rounded shadow
+    z-50
+    hidden
+    max-h-72
+    overflow-y-auto;
 }
-
 .custom-dropdown.active .dropdown-list {
   display: block;
 }
 
 .dropdown-search {
-  padding: 0.75rem;
-  border-bottom: 1px solid var(--secondary-color);
+  @apply p-3 border-b border-gray-300 dark:border-gray-600;
 }
-
 .dropdown-search input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--secondary-color);
-  border-radius: 0.25rem;
-  background-color: var(--input-background);
-  color: var(--input-text-color);
+  @apply w-full p-2 rounded 
+    border border-gray-300 dark:border-gray-600
+    bg-white dark:bg-gray-700
+    text-gray-800 dark:text-gray-100
+    focus:outline-none
+    focus:ring-2 focus:ring-primary;
 }
 
-.dropdown-search input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(46, 90, 39, 0.2);
-}
-
+/* 
+  Each dropdown item:
+  Light: text-gray-800
+  Dark: text-gray-100
+*/
 .dropdown-list li:not(.dropdown-search) {
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
+  @apply px-4 py-2 cursor-pointer transition-colors
+    text-gray-800 dark:text-gray-100; 
 }
-
 .dropdown-list li:not(.dropdown-search):hover {
-  background-color: var(--hover-background-color);
-  color: var(--hover-text-color);
-}
-
-.dropdown-list li:focus {
-  background-color: var(--hover-background-color);
-  color: var(--hover-text-color);
-  outline: none;
+  @apply bg-green-700 text-white; 
 }
 
 .dropdown-list li[data-value="all"] {
-  font-weight: 600;
-  border-bottom: 1px solid var(--secondary-color);
+  @apply font-semibold border-b border-gray-300 dark:border-gray-600;
 }
 
-/* Weather Card Styles */
+/* ============== WEATHER CARD ============== */
 .weather-card {
-  background-color: var(--card-background);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  @apply rounded p-4 shadow 
+    bg-white dark:bg-gray-800 
+    text-gray-800 dark:text-gray-100;
 }
 
 .weather-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  @apply flex justify-between items-start;
 }
-
 .weather-info img {
-  width: 3rem;
-  height: 3rem;
+  @apply w-12 h-12;
 }
 
-.weather-card .grid {
-  margin-top: 1rem;
-}
-
-.weather-card .flex {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.weather-card .text-sm {
-  font-size: 0.875rem;
-}
-
-.weather-card .font-medium {
-  font-weight: 500;
-}
-
-.weather-card .font-semibold {
-  font-weight: 600;
-}
-
-.weather-card .mt-4 {
-  margin-top: 1rem;
-}
-
-/* Loading Indicator */
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: var(--stadium-gray);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.loading::after {
-  content: '';
-  display: inline-block;
-  width: 1.25rem;
-  height: 1.25rem;
-  border: 2px solid var(--primary-color);
-  border-radius: 50%;
-  border-top-color: transparent;
-  animation: spin 1s linear infinite;
-  margin-left: 0.625rem;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Error Message */
+/* ============== ERROR MESSAGE ============== */
 .error-message {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  text-align: center;
+  @apply bg-yellow-100 border border-yellow-200 
+    text-yellow-800 p-4 rounded text-center;
 }
-
 .error-message button {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  @apply mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700;
 }
 
-.error-message button:hover {
-  background-color: var(--hover-background-color);
-}
-
-/* Responsive Design */
+/* ============== RESPONSIVE ============== */
 @media (max-width: 480px) {
-  #root {
-    padding: 1rem;
-  }
-
-  .header h1 {
-    font-size: 1.25rem;
-  }
-
   .controls {
-    flex-direction: column;
-    align-items: stretch;
+    @apply flex-col;
   }
-
   .controls button {
-    width: 100%;
+    @apply w-full;
   }
-
   .weather-info {
-    flex-direction: column;
-    align-items: flex-start;
+    @apply flex-col items-start;
   }
-
   .weather-info img {
-    margin-top: 0.5rem;
+    @apply mt-2;
   }
 }

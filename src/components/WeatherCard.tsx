@@ -40,7 +40,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather, temp
                 />
               </svg>
               <div>
-                <p className="text-sm text-gray-500">Rain</p>
+                <p className="text-sm text-gray-500 dark:text-gray-200">Rain</p>
                 <p className="font-medium">{rain} mm/h</p>
               </div>
             </div>
@@ -62,7 +62,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather, temp
                 />
               </svg>
               <div>
-                <p className="text-sm text-gray-500">Snow</p>
+                <p className="text-sm text-gray-500 dark:text-gray-200">Snow</p>
                 <p className="font-medium">{snow} mm/h</p>
               </div>
             </div>
@@ -82,11 +82,11 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather, temp
   const weatherIcon = weatherArray.length > 0 ? weatherArray[0].icon : '01d';
 
   return (
-    <div className="weather-card p-4 border rounded shadow bg-white dark:bg-gray-800">
+    <div className="weather-card p-4 border rounded shadow">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">{stadium.name}</h3>
-          <p className="text-sm text-gray-500">{stadium.team}</p>
+          <p className="text-sm text-gray-400 dark:text-gray-200">{stadium.team}</p>
         </div>
         <img
           src={`https://openweathermap.org/img/wn/${weatherIcon}@2x.png`}
@@ -111,7 +111,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather, temp
             />
           </svg>
           <div>
-            <p className="text-sm text-gray-500">Temperature</p>
+            <p className="text-sm text-gray-500 dark:text-gray-100">Temperature</p>
             <p className="font-medium">{Math.round(main.temp)}°{temperatureUnit}</p>
           </div>
         </div>
@@ -131,14 +131,14 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather, temp
             />
           </svg>
           <div>
-            <p className="text-sm text-gray-500">Humidity</p>
+            <p className="text-sm text-gray-500 dark:text-gray-200">Humidity</p>
             <p className="font-medium">{main.humidity}%</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-gray-500"
+            className="h-6 w-6 text-gray-500 dark:text-gray-200" 
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -151,7 +151,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather, temp
             />
           </svg>
           <div>
-            <p className="text-sm text-gray-500">Wind Speed</p>
+            <p className="text-sm text-gray-500 dark:text-gray-200">Wind Speed</p>
             <p className="font-medium">
               {windSpeed} mph {windDirection}
             </p>
@@ -173,7 +173,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({ stadium, weather, temp
             />
           </svg>
           <div>
-            <p className="text-sm text-gray-500">Feels Like</p>
+            <p className="text-sm text-gray-500 dark:text-gray-200">Feels Like</p>
             <p className="font-medium">{Math.round(main.feels_like)}°{temperatureUnit}</p>
           </div>
         </div>
