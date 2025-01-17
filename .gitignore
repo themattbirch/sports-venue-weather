@@ -32,6 +32,20 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
+# Android/Bubblewrap build files
+*.apk
+*.aab
+*.keystore
+gradle/
+.gradle/
+build/
+app-release-*
+android/
+app/
+
+# Bubblewrap CLI files
+.bubblewrap/
+
 # Misc
 *.log
 .cache/
