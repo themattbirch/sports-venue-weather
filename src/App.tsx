@@ -53,7 +53,9 @@ const App: React.FC = () => {
         const storedApiKey = safeGetItem('openweatherApiKey');
         const finalApiKey = storedApiKey || ENV_API_KEY;
         if (!finalApiKey) {
-          throw new Error('OpenWeather API key not found in environment variables');
+          throw new Error(
+            'OpenWeather API key not found in environment variables'
+          );
         }
 
         // 1d) Load stadium data
@@ -96,7 +98,8 @@ const App: React.FC = () => {
         fetch('/data/more_stadium_coordinates.json'),
       ]);
 
-      if (!footballResp.ok) throw new Error('Failed to load football stadium data');
+      if (!footballResp.ok)
+        throw new Error('Failed to load football stadium data');
       if (!otherResp.ok) throw new Error('Failed to load MLB/MLS stadium data');
 
       const [footballData, otherData] = await Promise.all([
@@ -112,7 +115,11 @@ const App: React.FC = () => {
       };
     } catch (err: any) {
       console.error('Error loading stadium data:', err);
-      showError('Could not load stadium data', 'Check your connection and try again.', true);
+      showError(
+        'Could not load stadium data',
+        'Check your connection and try again.',
+        true
+      );
       throw err;
     }
   };
@@ -165,7 +172,9 @@ const App: React.FC = () => {
 
     const leagues: LeagueType[] = ['nfl', 'ncaa', 'mlb', 'mls'];
     leagues.forEach((league) => {
-      const dropdown = document.getElementById(`${league}Dropdown`) as HTMLElement;
+      const dropdown = document.getElementById(
+        `${league}Dropdown`
+      ) as HTMLElement;
       if (dropdown) {
         initializeCustomDropdown(dropdown, league);
       }
@@ -213,10 +222,17 @@ const App: React.FC = () => {
       });
   };
 
-  const initializeCustomDropdown = (dropdown: HTMLElement, league: LeagueType) => {
-    const selected = dropdown.querySelector('.dropdown-selected') as HTMLElement;
+  const initializeCustomDropdown = (
+    dropdown: HTMLElement,
+    league: LeagueType
+  ) => {
+    const selected = dropdown.querySelector(
+      '.dropdown-selected'
+    ) as HTMLElement;
     const list = dropdown.querySelector('.dropdown-list') as HTMLElement;
-    const searchInput = list.querySelector('.dropdown-search input') as HTMLInputElement;
+    const searchInput = list.querySelector(
+      '.dropdown-search input'
+    ) as HTMLInputElement;
 
     // Toggle open/close on click (unless clicking in search)
     dropdown.addEventListener('click', (e) => {
@@ -234,7 +250,10 @@ const App: React.FC = () => {
     list.addEventListener('click', (e) => {
       e.stopPropagation();
       const target = e.target as HTMLElement;
-      if (target.tagName.toLowerCase() === 'li' && !target.classList.contains('dropdown-search')) {
+      if (
+        target.tagName.toLowerCase() === 'li' &&
+        !target.classList.contains('dropdown-search')
+      ) {
         const value = target.dataset.value;
         const text = target.textContent || '';
         if (selected) {
@@ -251,13 +270,17 @@ const App: React.FC = () => {
       const items = list.querySelectorAll('li:not(.dropdown-search)');
       items.forEach((item) => {
         const txt = item.textContent?.toLowerCase() || '';
-        (item as HTMLElement).style.display = txt.includes(filterVal) ? '' : 'none';
+        (item as HTMLElement).style.display = txt.includes(filterVal)
+          ? ''
+          : 'none';
       });
     });
   };
 
   const closeAllDropdowns = (current?: HTMLElement) => {
-    const activeDropdowns = document.querySelectorAll('.custom-dropdown.active');
+    const activeDropdowns = document.querySelectorAll(
+      '.custom-dropdown.active'
+    );
     activeDropdowns.forEach((dd) => {
       if (dd !== current) {
         dd.classList.remove('active');
@@ -265,7 +288,10 @@ const App: React.FC = () => {
     });
   };
 
-  const handleDropdownSelection = async (league: LeagueType, selectedValue: string | undefined) => {
+  const handleDropdownSelection = async (
+    league: LeagueType,
+    selectedValue: string | undefined
+  ) => {
     if (!selectedValue) return;
 
     // Reset other leagues
@@ -286,7 +312,9 @@ const App: React.FC = () => {
   // 5) Weather fetch logic
   const refreshWeather = async () => {
     const teams = getSelectedTeams();
-    const dateInput = document.getElementById('weather-date') as HTMLInputElement;
+    const dateInput = document.getElementById(
+      'weather-date'
+    ) as HTMLInputElement;
     const dateVal = dateInput?.value || new Date().toISOString().split('T')[0];
 
     if (teams.length === 0) {
@@ -298,11 +326,15 @@ const App: React.FC = () => {
       const storedKey = safeGetItem('openweatherApiKey');
       const finalApiKey = storedKey || ENV_API_KEY;
       if (!finalApiKey) {
-        throw new Error('OpenWeather API key not found in environment variables');
+        throw new Error(
+          'OpenWeather API key not found in environment variables'
+        );
       }
 
       const results = await Promise.all(
-        teams.map((stadium) => fetchWeatherForStadium(stadium, dateVal, finalApiKey))
+        teams.map((stadium) =>
+          fetchWeatherForStadium(stadium, dateVal, finalApiKey)
+        )
       );
       setWeatherData(results);
       setError(null);
@@ -318,13 +350,20 @@ const App: React.FC = () => {
     leagues.forEach((l) => {
       const dd = document.getElementById(`${l}Dropdown`);
       const selected = dd?.querySelector('.dropdown-selected')?.textContent;
-      if (selected && !selected.includes('Select') && !selected.includes('Team')) {
+      if (
+        selected &&
+        !selected.includes('Select') &&
+        !selected.includes('Team')
+      ) {
         if (selected === `All ${l.toUpperCase()} Teams`) {
           out.push(...stadiumsMap[l]);
         } else {
           // handle multi-team stadium
           const matches = stadiumsMap[l].filter((s) =>
-            s.team.split(/,|\//).map((x) => x.trim()).includes(selected)
+            s.team
+              .split(/,|\//)
+              .map((x) => x.trim())
+              .includes(selected)
           );
           out.push(...matches);
         }
@@ -390,8 +429,14 @@ const App: React.FC = () => {
           >
             {darkMode ? '🌞' : '🌙'}
           </button>
-          <h1 className="text-xl font-bold flex-grow text-center">Stadium Weather</h1>
-          <button id="settings" className="icon-button" onClick={() => SettingsManager.openModal()}>
+          <h1 className="text-xl font-bold flex-grow text-center">
+            Sports Venue Weather
+          </h1>
+          <button
+            id="settings"
+            className="icon-button"
+            onClick={() => SettingsManager.openModal()}
+          >
             ⚙
           </button>
         </header>
@@ -452,7 +497,9 @@ const App: React.FC = () => {
         <div className="dropdowns-container mb-4">
           {/* NFL */}
           <div className="custom-dropdown" id="nflDropdown">
-            <label className="block text-gray-800 dark:text-gray-200 mb-1">NFL</label>
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">
+              NFL
+            </label>
             <div className="dropdown-selected">Select NFL Team</div>
             <ul className="dropdown-list" role="listbox">
               <li className="dropdown-search">
@@ -462,7 +509,9 @@ const App: React.FC = () => {
           </div>
           {/* NCAA */}
           <div className="custom-dropdown" id="ncaaDropdown">
-            <label className="block text-gray-800 dark:text-gray-200 mb-1">NCAA Football</label>
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">
+              NCAA Football
+            </label>
             <div className="dropdown-selected">Select NCAA Team</div>
             <ul className="dropdown-list" role="listbox">
               <li className="dropdown-search">
@@ -472,7 +521,9 @@ const App: React.FC = () => {
           </div>
           {/* MLB */}
           <div className="custom-dropdown" id="mlbDropdown">
-            <label className="block text-gray-800 dark:text-gray-200 mb-1">MLB</label>
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">
+              MLB
+            </label>
             <div className="dropdown-selected">Select MLB Team</div>
             <ul className="dropdown-list" role="listbox">
               <li className="dropdown-search">
@@ -482,7 +533,9 @@ const App: React.FC = () => {
           </div>
           {/* MLS */}
           <div className="custom-dropdown" id="mlsDropdown">
-            <label className="block text-gray-800 dark:text-gray-200 mb-1">MLS</label>
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">
+              MLS
+            </label>
             <div className="dropdown-selected">Select MLS Team</div>
             <ul className="dropdown-list" role="listbox">
               <li className="dropdown-search">
