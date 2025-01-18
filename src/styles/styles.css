@@ -15,13 +15,14 @@
 }
 
 /* Basic resets */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
 }
@@ -52,7 +53,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #eab308; /* default icon color for light mode */
+  color: #eab308;
 }
 .icon-button:hover {
   color: var(--secondary-color); /* #f4ea80 by default */
@@ -60,16 +61,16 @@ body {
 
 /* Controls */
 .controls {
-  @apply flex gap-4; /* Increased gap from 3 to 4 (16px) */
+  @apply flex gap-4;
 }
 
 .controls button {
-  @apply px-5 py-2 rounded-md shadow-sm text-sm font-medium; /* Increased horizontal padding, more refined shadow */
+  @apply px-5 py-2 rounded-md shadow-sm text-sm font-medium;
   transition: all 0.2s ease;
 }
 
 .controls .primary-button {
-  background-color: #2d8a4e; /* Custom green that's vibrant but professional */
+  background-color: #2d8a4e;
   @apply text-white flex-1 mx-2;
 }
 
@@ -81,36 +82,29 @@ body {
 .dark .controls .primary-button {
   background-color: #2d8a4e;
 }
-
 .dark .controls .primary-button:hover {
   background-color: #247040;
 }
 
-/* 
-  1) Date input icon styling:
-*/
-
-/* Date input styling improvements */
-[type="date"] {
-  @apply rounded-md border-gray-300 dark:border-gray-600;
+/* Error-message styling for your custom alerts */
+.error-message button {
+  @apply bg-gray-500 px-5 py-2 rounded-md shadow-sm text-sm font-medium text-white flex-1;
   transition: all 0.2s ease;
 }
 
-[type="date"]:focus {
-  @apply outline-none;
-  border-color: #2d8a4e;
-  box-shadow: 0 0 0 2px rgba(45, 138, 78, 0.2);
+/* Date input styling */
+[type="date"] {
+  @apply rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 
+    text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary 
+    transition-colors;
+  text-align: center; /* Added: ensures text is centered in the date field. */
 }
 
+/* Tweak the built-in calendar icon offset */
 [type="date"]::-webkit-calendar-picker-indicator {
-  color: #333; /* Light mode default */
-  opacity: 0.9; /* Slight transparency */
-}
-
-/* In dark mode, invert or lighten the icon */
-.dark [type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.8) hue-rotate(180deg);
-  opacity: 0.7;
+  position: relative;
+  left: -2px; /* Shift icon slightly for better centering */
+  filter: none; /* or invert/hue-rotate if you want custom dark mode styling. */
 }
 
 /* ============== DROPDOWNS ============== */
@@ -119,35 +113,19 @@ body {
   margin-bottom: 1rem;
 }
 
-/* 
-  2) Make sure .dropdown-selected & .dropdown-list items 
-     have text-gray-800 in light mode, text-gray-100 in dark mode.
-*/
 .dropdown-selected {
-  @apply flex items-center justify-between 
-    px-4 py-3 
-    bg-white dark:bg-gray-700 
-    text-gray-800 dark:text-gray-100
-    border border-gray-300 dark:border-gray-600
-    rounded
-    cursor-pointer
-    transition-colors;
+  @apply flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-700 
+    text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 
+    rounded cursor-pointer transition-colors;
 }
 
 .custom-dropdown.active .dropdown-selected {
-  /* highlight border/box */
   @apply border-green-800 shadow-md;
 }
 
 .dropdown-list {
-  @apply absolute top-full left-0 mt-1 w-full 
-    bg-white dark:bg-gray-700 
-    border border-gray-300 dark:border-gray-600 
-    rounded shadow
-    z-50
-    hidden
-    max-h-72
-    overflow-y-auto;
+  @apply absolute top-full left-0 mt-1 w-full bg-white dark:bg-gray-700 
+    border border-gray-300 dark:border-gray-600 rounded shadow z-50 hidden max-h-72 overflow-y-auto;
 }
 .custom-dropdown.active .dropdown-list {
   display: block;
@@ -157,36 +135,27 @@ body {
   @apply p-3 border-b border-gray-300 dark:border-gray-600;
 }
 .dropdown-search input {
-  @apply w-full p-2 rounded 
-    border border-gray-300 dark:border-gray-600
-    bg-white dark:bg-gray-700
-    text-gray-800 dark:text-gray-100
-    focus:outline-none
-    focus:ring-2 focus:ring-primary;
+  @apply w-full p-2 rounded border border-gray-300 dark:border-gray-600 
+    bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 
+    focus:outline-none focus:ring-2 focus:ring-primary;
 }
 
-/* 
-  Each dropdown item:
-  Light: text-gray-800
-  Dark: text-gray-100
-*/
+/* Make unselected items visible in dark mode */
 .dropdown-list li:not(.dropdown-search) {
-  @apply px-4 py-2 cursor-pointer transition-colors
-    text-gray-800 dark:text-gray-100; 
+  @apply px-4 py-2 cursor-pointer transition-colors text-gray-800 dark:text-gray-100;
 }
 .dropdown-list li:not(.dropdown-search):hover {
-  @apply bg-green-700 text-white; 
+  @apply bg-green-700 text-white;
 }
 
+/* "All TEAMS" item with a border */
 .dropdown-list li[data-value="all"] {
   @apply font-semibold border-b border-gray-300 dark:border-gray-600;
 }
 
 /* ============== WEATHER CARD ============== */
 .weather-card {
-  @apply rounded p-4 shadow 
-    bg-white dark:bg-gray-800 
-    text-gray-800 dark:text-gray-100;
+  @apply rounded p-4 shadow bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100;
 }
 
 .weather-info {
@@ -196,23 +165,21 @@ body {
   @apply w-12 h-12;
 }
 
-/* ============== ERROR MESSAGE ============== */
-.error-message {
-  @apply bg-yellow-100 border border-yellow-200 
-    text-yellow-800 p-4 rounded text-center;
-}
-.error-message button {
-  @apply mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700;
-}
-
 /* ============== RESPONSIVE ============== */
 @media (max-width: 480px) {
   .controls {
-    @apply flex-col;
+    @apply flex-row gap-2; 
   }
+
   .controls button {
-    @apply w-full;
+    @apply w-auto px-3 py-1.5 text-sm;
   }
+
+  .controls input[type="date"] {
+    min-width: 120px;
+    @apply text-sm px-2 text-center; 
+  }
+
   .weather-info {
     @apply flex-col items-start;
   }

@@ -1,31 +1,44 @@
-<!-- public/offline.html --->
+<!-- /public/offline.html -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <title>Offline -Sports Venue Weather</title>    
-    <meta name="description" content="Looks like you're offline. Please check your connection.">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="/favicon.ico">
+  <meta charset="UTF-8" />
+  <title>Offline - Sports Venue Weather</title>
+  <meta name="description" content="Looks like you're offline. Please check your connection.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Include your compiled Tailwind or main CSS here. If you rely on /styles/styles.css, do: -->
+  <link rel="icon" href="/favicon.ico" />
 </head>
+<body class="bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center min-h-screen p-4">
 
-<body class="bg-gray-50 dark:bg-gray-900 text-center flex flex-col items-center justify-center min-h-screen">
-    <div>
-        <img src="/icons/football128.png" alt="App icon" width="64" height="64" />
-    </div>
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-white mt-4">
-        Oops, you're offline!
-    </h1>
-    <p class="text-gray-600 dark:text-gray-300 mt-2">
-        Please check your connection and try again.
-    </p>
+  <!-- Icon (local so it works offline) -->
+  <img 
+    src="/icons/football128.png" 
+    alt="App icon" 
+    width="80" 
+    height="80" 
+    class="mb-4 opacity-90"
+  />
 
-    <!-- Optionally, a link to reload -->
-    <button onclick="window.location.reload()"
-        class="mt-6 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition">
-        Try Again
-    </button>
+  <!-- Main Heading -->
+  <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-3">
+    Oops, you're offline!
+  </h1>
+
+  <!-- Subtext -->
+  <p class="text-gray-700 dark:text-gray-300 mb-6 text-center max-w-sm">
+    Please check your internet connection and try again.
+  </p>
+
+  <!-- Reload button -->
+  <button 
+    onclick="window.location.reload()"
+    class="px-5 py-2 bg-green-700 hover:bg-green-800 text-white rounded shadow
+           focus:outline-none focus:ring-2 focus:ring-green-600 transition-colors"
+    style="min-width: 120px;"
+  >
+    Try Again
+  </button>
+
 </body>
-
 </html>
