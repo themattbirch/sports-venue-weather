@@ -13,13 +13,13 @@
   "backgroundColor": "#FFFFFF",
   "enableNotifications": true,
   "startUrl": "/app",
-  "iconUrl": "https://sportsvenueweather.app/icons/football48.png",
-  "maskableIconUrl": "https://sportsvenueweather.app/icons/football512.png",
-  "monochromeIconUrl": "https://sportsvenueweather.app/icons/football48.png",
+  "iconUrl": "https://sportsvenueweather.app/icons/football-icon-512.png",
+  "maskableIconUrl": "https://sportsvenueweather.app/icons/football-icon-maskable-512.png",
+  "monochromeIconUrl": "https://sportsvenueweather.app/icons/football-icon-monochrome-512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "/Users/mattb/Desktop/Projects/stadium-weather/stadium-weather-key.keystore",
-    "alias": "stadium-weather"
+    "alias": "Stadium-Weather"
   },
   "appVersionName": "1",
   "appVersionCode": 1,

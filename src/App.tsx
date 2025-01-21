@@ -417,7 +417,7 @@ const App: React.FC = () => {
     };
   };
 
-  // 6) Render the weather cards
+  // 6) Renders the weather cards
   const displayWeather = (): JSX.Element[] => {
     return weatherData.map(({ stadium, weather }) => (
       <WeatherCard
@@ -530,23 +530,53 @@ const App: React.FC = () => {
           >
             Refresh
           </button>
-          <input
-            type="date"
-            id="weather-date"
-            className="px-2 sm:px-3 py-1.5 sm:py-2 
-      border border-gray-300 dark:border-gray-600 rounded
-      bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100
-      focus:outline-none focus:ring-2 focus:ring-primary
-      transition-colors w-2/5 sm:w-1/3 text-sm sm:text-base"
-            min={new Date().toISOString().split('T')[0]}
-            max={
-              new Date(Date.now() + 5 * 24 * 60 * 60 * 1000)
-                .toISOString()
-                .split('T')[0]
-            }
-            defaultValue={new Date().toISOString().split('T')[0]}
-            onChange={() => refreshWeather()}
-          />
+
+          <div className="date-input-wrapper relative flex items-center">
+            <input
+              type="date"
+              id="weather-date"
+              className="
+        px-2 sm:px-3 py-1.5 sm:py-2
+        border border-gray-300 dark:border-gray-600
+        rounded
+        bg-white dark:bg-gray-700
+        text-gray-800 dark:text-gray-100
+        focus:outline-none focus:ring-2 focus:ring-primary
+        transition-colors
+        w-auto
+        text-sm sm:text-base
+      "
+              style={{ minWidth: '8rem' }} /* optional inline style */
+              min={new Date().toISOString().split('T')[0]}
+              max={
+                new Date(Date.now() + 5 * 24 * 60 * 60 * 1000)
+                  .toISOString()
+                  .split('T')[0]
+              }
+              defaultValue={new Date().toISOString().split('T')[0]}
+              onChange={() => refreshWeather()}
+            />
+
+            {/* This button is only visible on pointer: coarse (mobile).
+        On desktop (pointer: fine), it hides automatically in CSS. */}
+            <button
+              type="button"
+              className="calendar-icon"
+              onClick={() => {
+                const dateEl = document.getElementById(
+                  'weather-date'
+                ) as HTMLInputElement;
+                // Attempt to open date picker on mobile
+                // Some browsers now support .showPicker()
+                if (dateEl?.showPicker) {
+                  dateEl.showPicker();
+                } else {
+                  dateEl?.click();
+                }
+              }}
+            />
+          </div>
+
           <button
             id="settings-btn"
             className="primary-button text-sm px-3 sm:px-4 py-1.5 sm:py-2"

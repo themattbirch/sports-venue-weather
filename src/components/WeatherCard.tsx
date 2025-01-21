@@ -1,3 +1,4 @@
+// src/components/WeatherCard.tsx
 import React from 'react';
 import { StadiumInfo, WeatherDataResponse } from '../types';
 
@@ -105,6 +106,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
 
   return (
     <div className="weather-card p-2">
+      {/* Stadium Name + Team */}
       <div className="text-center mb-4">
         <h3 className="text-lg font-semibold">{stadium.name}</h3>
         <p className="text-sm text-gray-400 dark:text-gray-200">
@@ -114,6 +116,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
 
       <div className="relative">
         <div className="grid grid-cols-2 gap-6 px-8">
+          {/* Left side: Temperature */}
           <div className="flex items-start justify-start gap-3">
             <svg
               className="h-6 w-6 text-red-500"
@@ -137,7 +140,9 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
               </p>
             </div>
           </div>
-          <div className="flex items-start justify-end gap-3">
+
+          {/* Right side: Wind Speed (use items-center) */}
+          <div className="flex items-center justify-end gap-3">
             <div className="text-right">
               <p className="text-sm text-gray-500 dark:text-gray-200">
                 Wind Speed
@@ -161,6 +166,8 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
               />
             </svg>
           </div>
+
+          {/* Left side: Humidity */}
           <div className="flex items-start justify-start gap-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -173,7 +180,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 4.354a7.5 7.5 0 017.5 7.5c0 3.354-2.4 6.2-5.5 6.2H11.5C8.4 17.054 6 14.2 6 10.854a7.5 7.5 0 017.5-7.5z"
+                d="M12 4.354a7.5 7.5 0 0 1 7.5 7.5c0 3.354-2.4 6.2-5.5 6.2H11.5c-3.1 0-5.5-2.854-5.5-6.2a7.5 7.5 0 0 1 7.5-7.5z"
               />
             </svg>
             <div className="text-left">
@@ -183,7 +190,9 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
               <p className="font-medium">{main.humidity}%</p>
             </div>
           </div>
-          <div className="flex items-start justify-end gap-3">
+
+          {/* Right side: Feels Like (use items-center) */}
+          <div className="flex items-center justify-end gap-3">
             <div className="text-right">
               <p className="text-sm text-gray-500 dark:text-gray-200">
                 Feels Like
@@ -209,6 +218,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
           </div>
         </div>
 
+        {/* Centered Weather Icon */}
         <img
           src={`https://openweathermap.org/img/wn/${weatherIcon}@2x.png`}
           alt={weatherDescription}
@@ -216,28 +226,8 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
         />
       </div>
 
-      <div className="text-center mt-4">
-        {weather.snow && weather.snow['1h'] && weather.snow['1h'] > 0 && (
-          <div className="flex flex-col items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-blue-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 3v1m0 16v1m8.66-11.66l-.707.707M6.343 6.343l-.707.707M21 12h-1M4 12H3m16.95 7.95l-.707-.707M6.343 17.657l-.707-.707"
-              />
-            </svg>
-            <p className="text-sm text-gray-500 dark:text-gray-200">Snow</p>
-            <p className="font-medium">{weather.snow['1h']} mm/h</p>
-          </div>
-        )}
-      </div>
+      {/* Optional Snow or Rain Data */}
+      <div className="text-center mt-4">{getPrecipitationInfo(weather)}</div>
     </div>
   );
 };
