@@ -531,22 +531,23 @@ const App: React.FC = () => {
             Refresh
           </button>
 
-          <div className="date-input-wrapper relative flex items-center">
+          <div className="date-input-wrapper">
             <input
               type="date"
               id="weather-date"
               className="
-        px-2 sm:px-3 py-1.5 sm:py-2
+     w-auto
+        px-3 py-2
+        text-sm sm:text-base
+        pr-12           /* Enough padding for the icon */
         border border-gray-300 dark:border-gray-600
         rounded
         bg-white dark:bg-gray-700
         text-gray-800 dark:text-gray-100
         focus:outline-none focus:ring-2 focus:ring-primary
         transition-colors
-        w-auto
-        text-sm sm:text-base
-      "
-              style={{ minWidth: '8rem' }} /* optional inline style */
+    "
+              style={{ minWidth: '8rem' }}
               min={new Date().toISOString().split('T')[0]}
               max={
                 new Date(Date.now() + 5 * 24 * 60 * 60 * 1000)
@@ -556,25 +557,34 @@ const App: React.FC = () => {
               defaultValue={new Date().toISOString().split('T')[0]}
               onChange={() => refreshWeather()}
             />
-
-            {/* This button is only visible on pointer: coarse (mobile).
-        On desktop (pointer: fine), it hides automatically in CSS. */}
+            {/* The button that sits inside the same box on the right */}
             <button
               type="button"
-              className="calendar-icon"
               onClick={() => {
                 const dateEl = document.getElementById(
                   'weather-date'
                 ) as HTMLInputElement;
-                // Attempt to open date picker on mobile
-                // Some browsers now support .showPicker()
                 if (dateEl?.showPicker) {
                   dateEl.showPicker();
                 } else {
                   dateEl?.click();
                 }
               }}
-            />
+              className="calendar-icon"
+              aria-label="Open date picker"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                viewBox="0 0 24 24"
+              >
+                <path d="M8 7V3m8 4V3M3 11h18m-1 9H4a1 1 0 01-1-1V5a1 1 0 011-1h2m3.293 0h5.414m3.293 0h2a1 1 0 011 1v14a1 1 0 01-1 1z" />
+              </svg>
+            </button>
           </div>
 
           <button

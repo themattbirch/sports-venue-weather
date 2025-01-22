@@ -95,68 +95,78 @@ body {
 /* ========================================= */
 /*   DATE INPUT WRAPPER & ICON STYLES        */
 /* ========================================= */
+/* Forces the text for day/month/year to unify in dark mode. */
 
-.date-input-wrapper {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
+/* Your date input wrapper & icon */
+
+.date-input-wrapper input[type="date"] {
+  -webkit-appearance: none; /* Removes default arrow in Chrome/Safari */
+  -moz-appearance: textfield; /* Removes default arrow in Firefox */
+  appearance: none; /* Standard property */
 }
 
-/* By default, let the desktop browser show its native icon. 
-   We'll hide it conditionally for "coarse" pointer (mobile).
-*/
+/* Remove additional buttons/icons (especially on mobile) */
+.date-input-wrapper input[type="date"]::-webkit-clear-button,
+.date-input-wrapper input[type="date"]::-webkit-inner-spin-button,
+.date-input-wrapper input[type="date"]::-ms-clear,
+.date-input-wrapper input[type="date"]::-ms-expand {
+  display: none !important;
+}
+
+
+.date-input-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+}
+
+/* Force the sub-parts (month/day/year) to be the same color in both modes. */
+.date-input-wrapper input[type="date"]::-webkit-datetime-edit,
+.date-input-wrapper input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+.date-input-wrapper input[type="date"]::-webkit-datetime-edit-text,
+.date-input-wrapper input[type="date"]::-webkit-datetime-edit-month-field,
+.date-input-wrapper input[type="date"]::-webkit-datetime-edit-day-field,
+.date-input-wrapper input[type="date"]::-webkit-datetime-edit-year-field {
+  @apply text-gray-800;
+}
+:root.dark .date-input-wrapper input[type="date"]::-webkit-datetime-edit,
+:root.dark .date-input-wrapper input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+:root.dark .date-input-wrapper input[type="date"]::-webkit-datetime-edit-text,
+:root.dark .date-input-wrapper input[type="date"]::-webkit-datetime-edit-month-field,
+:root.dark .date-input-wrapper input[type="date"]::-webkit-datetime-edit-day-field,
+:root.dark .date-input-wrapper input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #f3f4f6 !important; /* or text-gray-100 */
+}
+
+/* The .date-input-wrapper itself */
+.date-input-wrapper {
+  @apply relative inline-block;
+}
+
+/* The <input> with extra right padding to accommodate the icon. */
 .date-input-wrapper input[type="date"] {
-  @apply rounded-md border border-gray-300 dark:border-gray-600
+  @apply block w-auto px-3 py-2 rounded
+    border border-gray-300 dark:border-gray-600
     bg-white dark:bg-gray-700
     text-gray-800 dark:text-gray-100
     focus:outline-none focus:ring-2 focus:ring-primary
-    transition-colors;
-  text-align: center;
-  /*padding-right: 0.5rem; /* space for an icon if needed */
-  appearance: none;
-  -webkit-appearance: none;
+    transition-colors text-sm sm:text-base;
+  padding-right: 3rem; /* or 3.5rem, 4rem. Adjust so it’s not too tight. */
 }
 
-/* The custom SVG icon: hidden by default on desktop. */
-.date-input-wrapper .calendar-icon {
-  position: absolute;
-  right: 0.4rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1.2rem;
-  height: 1.2rem;
-  background: url('/icons/calendar.svg') no-repeat center center;
-  background-size: contain;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  z-index: 2;
-  padding: 0;
-  display: none; /* hidden on desktop by default */
-}
-.date-input-wrapper .calendar-icon:hover {
-  filter: brightness(1.2);
+/* The icon button inside the input. 
+   We position it absolutely on the right and vertically center it. */
+.date-input-wrapper button.calendar-icon {
+  @apply absolute top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-300
+    hover:text-gray-700 dark:hover:text-gray-100 p-0 border-none bg-transparent
+    cursor-pointer;
+  width: 1.25rem;  /* or w-5 */
+  height: 1.25rem; /* or h-5 */
+  right: 0.75rem;  /* enough so it doesn't overlap text */
 }
 
-/* Hide the native browser calendar icon for coarse pointers (i.e. mobile).
-   Show the custom icon in that scenario. 
-   "pointer: coarse" indicates a touchscreen device. 
-*/
-@media (pointer: coarse) {
-  .date-input-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
-    display: none !important;
-  }
-  .date-input-wrapper .calendar-icon {
-    display: block; /* show custom icon on mobile */
-  }
+.date-input-wrapper button.calendar-icon:hover {
+  @apply text-gray-800 dark:text-gray-100;
 }
 
-/* On fine-pointer devices (desktop/laptop), keep the native icon and hide custom. */
-@media (pointer: fine) {
-  .date-input-wrapper .calendar-icon {
-    display: none !important;
-  }
-}
 
 /* ============== DROPDOWNS ============== */
 .custom-dropdown {
