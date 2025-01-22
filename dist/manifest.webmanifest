@@ -50,7 +50,7 @@
       "src": "/icons/football-icon-maskable-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
       "src": "/icons/football-icon-512.png",
@@ -62,7 +62,7 @@
       "src": "/icons/football-icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
       "src": "/icons/football-icon-monochrome-512.png",
@@ -88,6 +88,11 @@
       "sizes": "1080x1920",
       "type": "image/png"
     },
+        {
+      "src": "/screenshots/mobile4.png",
+      "sizes": "1080x1920",
+      "type": "image/png"
+    },
     {
       "src": "/screenshots/desktop1.png",
       "sizes": "1920x1080",
@@ -100,6 +105,11 @@
     },
     {
       "src": "/screenshots/desktop3.png",
+      "sizes": "1920x1080",
+      "type": "image/png"
+    },
+    {
+      "src": "/screenshots/desktop4.png",
       "sizes": "1920x1080",
       "type": "image/png"
     }
