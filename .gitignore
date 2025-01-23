@@ -42,6 +42,13 @@ build/
 app-release-*
 android/
 app/
+*gradle*
+
+# PWA/TWA specific
+twa-manifest.json
+store_icon.png
+stadium-weather-key.keystore
+manifest.txt
 
 # Bubblewrap CLI files
 .bubblewrap/

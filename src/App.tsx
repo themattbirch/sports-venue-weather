@@ -626,18 +626,7 @@ const App: React.FC = () => {
           >
             <strong>{error.title}</strong>
             {error.message && <p>{error.message}</p>}
-            <button
-              className="primary-button mt-2"
-              onClick={() => {
-                if (error.isApiError) {
-                  SettingsManager.openModal();
-                } else {
-                  window.location.reload();
-                }
-              }}
-            >
-              {error.isApiError ? 'Configure API Key' : 'Try Again'}
-            </button>
+            
           </div>
         )}
       </div>

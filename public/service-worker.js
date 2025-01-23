@@ -1,22 +1,20 @@
-// public/service-worker.js
-
-const CACHE_NAME = "sports-venu-weather";
-// If your site is served at / (root) with an index.html, great.
-// Otherwise, remove or adjust the lines that don't exist in your final build.
+const CACHE_NAME = 'sports-venue-weather';
 const PRECACHE_URLS = [
-  "/index.html", 
-  "/offline.html",
-  "/manifest.webmanifest",
+  '/app',
+  '/index.html',
+  '/offline.html',
+  '/manifest.webmanifest',
+  '/icons/football-icon-48.png',
 ];
 
-const OFFLINE_FALLBACK_URL = "/offline.html";
+const OFFLINE_FALLBACK_URL = '/offline.html';
 
-self.addEventListener("install", (event) => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(PRECACHE_URLS).catch((err) => {
-        console.error("Precache error:", err);
-        console.error("Likely a missing resource in PRECACHE_URLS.");
+        console.error('Precache error:', err);
+        console.error('Likely a missing resource in PRECACHE_URLS.');
         throw err;
       });
     })
@@ -24,7 +22,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
@@ -38,9 +36,9 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-self.addEventListener("fetch", (event) => {
+self.addEventListener('fetch', (event) => {
   const request = event.request;
-  if (request.method !== "GET") return; // Only cache GETs
+  if (request.method !== 'GET') return; // Only cache GETs
 
   event.respondWith(
     (async () => {
@@ -59,12 +57,12 @@ self.addEventListener("fetch", (event) => {
         return networkResponse;
       } catch (err) {
         // 3) If offline, return fallback for navigations
-        if (request.mode === "navigate") {
+        if (request.mode === 'navigate') {
           const fallback = await caches.match(OFFLINE_FALLBACK_URL);
-          return fallback || new Response("Offline", { status: 503 });
+          return fallback || new Response('Offline', { status: 503 });
         }
         // else, just return an error response
-        return new Response("Offline", { status: 503 });
+        return new Response('Offline', { status: 503 });
       }
     })()
   );
