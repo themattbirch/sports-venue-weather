@@ -48,7 +48,7 @@ app/
 twa-manifest.json
 store_icon.png
 stadium-weather-key.keystore
-manifest.txt
+manifest-checksum.txt
 
 # Bubblewrap CLI files
 .bubblewrap/

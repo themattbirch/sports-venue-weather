@@ -526,7 +526,15 @@ const App: React.FC = () => {
           <button
             id="refresh"
             className="primary-button text-sm px-3 sm:px-4 py-1.5 sm:py-2"
-            onClick={() => refreshWeather()}
+            onClick={() => {
+              if (!navigator.onLine) {
+                // Service worker tries network, fails, then returns offline.html.
+                window.location.reload();
+              } else {
+                // Online: Fetch new data
+                refreshWeather();
+              }
+            }}
           >
             Refresh
           </button>
@@ -626,7 +634,6 @@ const App: React.FC = () => {
           >
             <strong>{error.title}</strong>
             {error.message && <p>{error.message}</p>}
-            
           </div>
         )}
       </div>
