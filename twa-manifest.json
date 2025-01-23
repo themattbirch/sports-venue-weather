@@ -13,7 +13,7 @@
   "backgroundColor": "#FFFFFF",
   "enableNotifications": true,
   "startUrl": "/app",
-  "iconUrl": "https://sportsvenueweather.app/icons/football-icon-maskable-512.png",
+  "iconUrl": "https://sportsvenueweather.app/icons/football-icon-512.png",
   "maskableIconUrl": "https://sportsvenueweather.app/icons/football-icon-maskable-512.png",
   "monochromeIconUrl": "https://sportsvenueweather.app/icons/football-icon-monochrome-512.png",
   "splashScreenFadeOutDuration": 300,
