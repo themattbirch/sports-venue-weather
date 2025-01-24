@@ -1,37 +1,19 @@
 {
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-forwarded-proto",
+          "value": "http"
+        }
+      ],
+      "permanent": true,
+      "destination": "https://$1"
+    }
+  ],
   "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/app",
-      "destination": "/public/index.html"
-    },
-    {
-      "source": "/app/:path*",
-      "destination": "/public/index.html"
-    },
-    {
-      "source": "/app/data/:path*",
-      "destination": "/data/:path*"
-    },
-    {
-      "source": "/data/:path*",
-      "destination": "/data/:path*"
-    },
-    {
-      "source": "/service-worker.js",
-      "destination": "/service-worker.js"
-    },
-    {
-      "source": "/offline.html",
-      "destination": "/offline.html"
-    },
-    {
-      "source": "/manifest.webmanifest",
-      "destination": "/manifest.webmanifest"
-    },
     {
       "source": "/support",
       "destination": "/support.html"
@@ -45,8 +27,40 @@
       "destination": "/terms.html"
     },
     {
+      "source": "/service-worker.js",
+      "destination": "/service-worker.js"
+    },
+    {
+      "source": "/app",
+      "destination": "/public/index.html"
+    },
+    {
+      "source": "/app/:path*",
+      "destination": "/public/index.html"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/.well-known/assetlinks.json",
+      "destination": "/.well-known/assetlinks.json"
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "destination": "/manifest.webmanifest"
+    },
+    {
       "source": "/icons/:path*",
       "destination": "/icons/:path*"
+    },
+    {
+      "source": "/404",
+      "destination": "/404.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/404.html"
     }
   ],
   "headers": [
@@ -56,6 +70,24 @@
         {
           "key": "Content-Type",
           "value": "application/javascript; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        }
+      ]
+    },
+    {
+      "source": "/icons/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }
