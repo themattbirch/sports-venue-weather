@@ -185,11 +185,17 @@ body {
   @apply border-green-800 shadow-md;
 }
 .dropdown-list {
-  @apply absolute top-full left-0 mt-1 w-full 
-    bg-white dark:bg-gray-700 
-    border border-gray-300 dark:border-gray-600 
-    rounded shadow z-50 hidden max-h-72 overflow-y-auto;
+  @apply absolute top-full left-0 mt-1 w-full
+    bg-white dark:bg-gray-700
+    border border-gray-300 dark:border-gray-600
+    rounded shadow
+    hidden
+    z-50
+    overflow-y-auto; 
+
+  max-height: 50vh; 
 }
+
 .custom-dropdown.active .dropdown-list {
   display: block;
 }

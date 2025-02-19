@@ -1,6 +1,6 @@
 {
   "name": "sports-venue-weather",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "description": "Get updated weather updates for NFL, college football, MLB and MLS venues in real-time.",
   "scripts": {
